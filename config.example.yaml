@@ -9,7 +9,7 @@ api:
 
 # ── Preprocessing ─────────────────────────────────────────────────────────────
 preprocessing:
-  input_csv:  questions_exam12_all.csv
-  output_csv: questions_exam12_ready.csv
+  input_csv:  data/raw/questions_exam12_all.csv
+  output_csv: data/processed/questions_exam12_ready.csv
   answer_field: answer_ET        # answer_ET (expert) ou answer (communauté)
   skip_existing_explanations: true   # ne re-génère pas si la colonne existe déjà

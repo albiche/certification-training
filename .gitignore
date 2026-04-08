@@ -6,6 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+venv/
 
 # Node (tous les projets)
 node_modules/
