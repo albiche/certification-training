@@ -1,7 +1,5 @@
 import { Question, AppProgress, Group } from '../types';
-
-// Poids par groupe (total = 100). Groupe 4 = jamais sélectionné.
-const WEIGHTS: Record<Group, number> = { 1: 90, 2: 9, 3: 1, 4: 0 };
+import { GROUP_WEIGHTS } from '../data/constants';
 
 /**
  * Sélectionne la prochaine question selon les probabilités pondérées.
@@ -24,7 +22,7 @@ export function selectNextQuestion(
   const pool: Group[] = [];
   for (const g of [1, 2, 3] as Group[]) {
     if (byGroup[g].length > 0) {
-      for (let i = 0; i < WEIGHTS[g]; i++) pool.push(g);
+      for (let i = 0; i < GROUP_WEIGHTS[g]; i++) pool.push(g);
     }
   }
 

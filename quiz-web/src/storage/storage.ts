@@ -1,13 +1,12 @@
 import { AppProgress } from '../types';
-
-const STORAGE_KEY = 'quiz_web_progress_v1';
+import { STORAGE_KEY, DEFAULT_REGRESSION_DAYS } from '../data/constants';
 
 export function defaultProgress(): AppProgress {
   return {
     progress: {},
     lastRegressionCheck: new Date().toISOString(),
     questionsLoaded: false,
-    regressionDays: 5,
+    regressionDays: DEFAULT_REGRESSION_DAYS,
     answeredSinceLastCheck: 0,
   };
 }
