@@ -1,0 +1,15 @@
+# ── API Configuration ─────────────────────────────────────────────────────────
+api:
+  provider: openai
+  model: gpt-4o                  # modèle avec accès internet via web_search_preview tool
+  api_key: VOTRE_CLE_OPENAI_ICI  # remplacer par votre clé OpenAI (sk-proj-...)
+  max_tokens: 350                # longueur max de l'explication
+  temperature: 0.3               # faible = réponses factuelles et cohérentes
+  requests_per_minute: 20        # limite de débit (RPM) pour éviter les erreurs 429
+
+# ── Preprocessing ─────────────────────────────────────────────────────────────
+preprocessing:
+  input_csv:  questions_exam12_all.csv
+  output_csv: questions_exam12_ready.csv
+  answer_field: answer_ET        # answer_ET (expert) ou answer (communauté)
+  skip_existing_explanations: true   # ne re-génère pas si la colonne existe déjà

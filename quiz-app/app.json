@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Quiz Révision",
+    "slug": "quiz-revision",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0f1923"
+      }
+    }
+  }
+}
