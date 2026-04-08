@@ -9,6 +9,7 @@ import { ResultView } from './components/ResultView';
 import { VictoryScreen } from './components/VictoryScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { Countdown } from './components/Countdown';
+import { RulesModal } from './components/RulesModal';
 
 type QuizPhase = 'quiz' | 'result' | 'victory';
 
@@ -21,6 +22,7 @@ export function App() {
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastId, setLastId] = useState<string | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   // Démarre le quiz dès que les données sont prêtes
   useEffect(() => {
@@ -144,6 +146,14 @@ export function App() {
         <div className="header__actions">
           <button
             className="icon-btn"
+            onClick={() => setShowRules(true)}
+            aria-label="Règles"
+            title="Règles du jeu"
+          >
+            ?
+          </button>
+          <button
+            className="icon-btn"
             onClick={() => setShowSettings(true)}
             aria-label="Paramètres"
             title="Paramètres"
@@ -177,6 +187,13 @@ export function App() {
 
       {phase === 'victory' && (
         <VictoryScreen total={questions.length} onReset={handleReset} />
+      )}
+
+      {showRules && (
+        <RulesModal
+          regressionDays={progress.regressionDays}
+          onClose={() => setShowRules(false)}
+        />
       )}
 
       {showSettings && (
