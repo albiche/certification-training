@@ -16,6 +16,7 @@ import { QuizCard } from './components/QuizCard';
 import { ResultView } from './components/ResultView';
 import { VictoryScreen } from './components/VictoryScreen';
 import { SettingsModal } from './components/SettingsModal';
+import { Countdown } from './components/Countdown';
 
 type Phase = 'loading' | 'error' | 'quiz' | 'result' | 'victory';
 
@@ -172,6 +173,11 @@ export function App() {
       {/* Statistiques groupes */}
       {phase !== 'loading' && phase !== 'error' && (
         <GroupStats counts={groupCounts} total={questions.length} />
+      )}
+
+      {/* Countdown prochain reset */}
+      {phase !== 'loading' && phase !== 'error' && (
+        <Countdown progress={progress} />
       )}
 
       {/* Contenu principal */}
