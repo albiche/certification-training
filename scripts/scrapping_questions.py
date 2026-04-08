@@ -4,6 +4,7 @@ import json
 import re
 import random
 from pathlib import Path
+import yaml
 import pandas as pd
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
@@ -21,11 +22,21 @@ except ImportError:
     HAS_STEALTH = False
     print("⚠ selenium-stealth non installé. Lancez : pip install selenium-stealth")
 
-# ── Configuration ────────────────────────────────────────────────────────────
-BASE_URL               = "https://www.examprepper.co/exam/12/{page}"
+# ── Configuration (depuis config.yaml) ───────────────────────────────────────
+def _load_scraping_config() -> dict:
+    config_path = ROOT / "config.yaml"
+    if not config_path.exists():
+        print("Warning: config.yaml introuvable, utilisation des valeurs par défaut.")
+        return {}
+    with open(config_path, encoding="utf-8") as f:
+        return (yaml.safe_load(f) or {}).get("scraping", {})
+
+_scraping = _load_scraping_config()
+
+EXAM_ID                = _scraping.get("exam_id", 12)
+START_PAGE             = _scraping.get("start_page", 1)
+BASE_URL               = f"https://www.examprepper.co/exam/{EXAM_ID}/{{page}}"
 SITE_HOME              = "https://www.examprepper.co/"
-EXAM_ID                = 12
-START_PAGE             = 10
 MAX_RETRIES            = 3
 MAX_CONSECUTIVE_MISSES = 5
 RETRY_WAIT             = (15, 30)   # plus long après un blocage

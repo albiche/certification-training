@@ -1,3 +1,8 @@
+# ── Scraping ──────────────────────────────────────────────────────────────────
+scraping:
+  exam_id: 12       # ID de l'examen sur examprepper.co  (ex: 12 = GCP Professional Data Engineer)
+  start_page: 1     # Page de départ — mettez > 1 pour reprendre un scraping interrompu
+
 # ── API Configuration ─────────────────────────────────────────────────────────
 api:
   provider: openai
