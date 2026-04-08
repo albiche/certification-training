@@ -23,7 +23,6 @@ export function GroupStats({ counts, total }: Props) {
         {([1, 2, 3, 4] as Group[]).map((g, i) => (
           <div key={g} className="group-frise__item">
             <div className={`group-card group-card--${g}`}>
-              <div className="group-card__emoji">{GROUP_META[g].emoji}</div>
               <div className="group-card__count">{counts[g]}</div>
               <div className="group-card__label">{GROUP_META[g].label}</div>
             </div>

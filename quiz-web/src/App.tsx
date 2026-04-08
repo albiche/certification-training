@@ -145,12 +145,12 @@ export function App() {
         </div>
         <div className="header__actions">
           <button
-            className="icon-btn"
+            className="icon-btn icon-btn--label"
             onClick={() => setShowRules(true)}
             aria-label="Règles"
             title="Règles du jeu"
           >
-            ?
+            RÈGLE
           </button>
           <button
             className="icon-btn"
