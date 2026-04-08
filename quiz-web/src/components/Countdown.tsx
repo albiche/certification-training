@@ -52,7 +52,7 @@ export function Countdown({ progress }: Props) {
 
   return (
     <div className="countdown">
-      <span className="countdown__label">Prochain reset dans</span>
+      <span className="countdown__label">Prochaine régression dans</span>
       <div className="countdown__blocks">
         <div className="countdown__block">
           <span className="countdown__value">{pad(timeLeft.days)}</span>
