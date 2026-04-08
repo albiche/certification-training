@@ -1,0 +1,20 @@
+# Secrets
+config.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Node (tous les projets)
+node_modules/
+dist/
+
+# Chrome profile (données personnelles)
+chrome_profile/
+
+# Fichiers temporaires
+*.tmp
+.DS_Store
+Thumbs.db
