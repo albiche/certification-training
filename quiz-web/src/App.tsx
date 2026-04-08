@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Question, AppProgress, Group } from './types';
-import { parseQuestions } from './data/csvParser';
-import { loadProgress, saveProgress, defaultProgress } from './storage/storage';
-import {
-  initializeProgress,
-  applyRegression,
-  promoteQuestion,
-  getGroupCounts,
-  isVictory,
-  resetGroups,
-} from './logic/progression';
+import { Question, Group } from './types';
+import { useQuizData } from './hooks/useQuizData';
+import { promoteQuestion, getGroupCounts, isVictory, resetGroups } from './logic/progression';
 import { selectNextQuestion } from './logic/selection';
 import { GroupStats } from './components/GroupStats';
 import { QuizCard } from './components/QuizCard';
@@ -18,57 +10,33 @@ import { VictoryScreen } from './components/VictoryScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { Countdown } from './components/Countdown';
 
-type Phase = 'loading' | 'error' | 'quiz' | 'result' | 'victory';
+type QuizPhase = 'quiz' | 'result' | 'victory';
 
 export function App() {
-  const [phase, setPhase] = useState<Phase>('loading');
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [progress, setProgress] = useState<AppProgress>(defaultProgress());
+  const { status, questions, progress, updateProgress, error } = useQuizData();
+
+  const [phase, setPhase] = useState<QuizPhase>('quiz');
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [lastCorrect, setLastCorrect] = useState(false);
   const [lastId, setLastId] = useState<string | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
 
-  // Chargement initial des questions + progression
+  // Démarre le quiz dès que les données sont prêtes
   useEffect(() => {
-    async function load() {
-      try {
-        const url = `${import.meta.env.BASE_URL}questions.csv`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Impossible de charger questions.csv (HTTP ${res.status})`);
-        const text = await res.text();
-        const parsed = parseQuestions(text);
-        if (parsed.length === 0) throw new Error('Aucune question trouvée dans le fichier CSV.');
-
-        const saved = loadProgress();
-        const initialized = initializeProgress(parsed, saved);
-        const afterRegression = applyRegression(initialized);
-
-        saveProgress(afterRegression);
-        setQuestions(parsed);
-        setProgress(afterRegression);
-
-        if (isVictory(parsed, afterRegression)) {
-          setPhase('victory');
-        } else {
-          const next = selectNextQuestion(parsed, afterRegression);
-          if (next) {
-            setCurrentQuestion(next);
-            setSelected([]);
-            setPhase('quiz');
-          } else {
-            setPhase('victory');
-          }
-        }
-      } catch (e) {
-        setErrorMsg(e instanceof Error ? e.message : String(e));
-        setPhase('error');
-      }
+    if (status !== 'ready') return;
+    if (isVictory(questions, progress)) {
+      setPhase('victory');
+      return;
     }
-    load();
-  }, []);
+    const next = selectNextQuestion(questions, progress);
+    if (next) {
+      setCurrentQuestion(next);
+      setPhase('quiz');
+    } else {
+      setPhase('victory');
+    }
+  }, [status]);
 
   function handleToggle(label: string) {
     if (!currentQuestion) return;
@@ -88,7 +56,7 @@ export function App() {
       selected.length === currentQuestion.correct_answers.length &&
       selected.every(s => currentQuestion.correct_answers.includes(s));
 
-    let newProgress: AppProgress = {
+    let newProgress = {
       ...progress,
       answeredSinceLastCheck: progress.answeredSinceLastCheck + 1,
     };
@@ -96,8 +64,7 @@ export function App() {
       newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
     }
 
-    saveProgress(newProgress);
-    setProgress(newProgress);
+    updateProgress(newProgress);
     setLastCorrect(correct);
     setLastId(currentQuestion.question_id);
     setPhase('result');
@@ -120,10 +87,8 @@ export function App() {
 
   function handleReset() {
     const reset = resetGroups(progress);
-    saveProgress(reset);
-    setProgress(reset);
+    updateProgress(reset);
     setShowSettings(false);
-
     const next = selectNextQuestion(questions, reset);
     if (next) {
       setCurrentQuestion(next);
@@ -133,71 +98,63 @@ export function App() {
   }
 
   function handleSaveSettings(regressionDays: number) {
-    const updated = { ...progress, regressionDays };
-    saveProgress(updated);
-    setProgress(updated);
+    updateProgress({ ...progress, regressionDays });
     setShowSettings(false);
   }
 
-  const groupCounts: Record<Group, number> =
-    questions.length > 0
-      ? getGroupCounts(questions, progress)
-      : { 1: 0, 2: 0, 3: 0, 4: 0 };
+  // ── Loading / Error ────────────────────────────────────────────────────────
+  if (status === 'loading') {
+    return (
+      <div className="app-container">
+        <div className="center-screen">
+          <div className="spinner" />
+          <p style={{ color: 'var(--text-sub)' }}>Chargement des questions…</p>
+        </div>
+      </div>
+    );
+  }
 
+  if (status === 'error') {
+    return (
+      <div className="app-container">
+        <div className="center-screen">
+          <p className="error-title">Erreur de chargement</p>
+          <p className="error-msg">{error}</p>
+          <p className="error-msg">
+            Vérifiez que <code>questions.csv</code> est présent dans <code>public/</code>.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── App ───────────────────────────────────────────────────────────────────
+  const groupCounts: Record<Group, number> = getGroupCounts(questions, progress);
   const currentGroup: Group = currentQuestion
     ? (progress.progress[currentQuestion.question_id]?.group ?? 1)
     : 1;
 
   return (
     <div className="app-container">
-      {/* Header */}
-      {phase !== 'loading' && phase !== 'error' && (
-        <header className="header">
-          <div>
-            <div className="header__title">Quiz Révision</div>
-            <div className="header__subtitle">{questions.length} questions</div>
-          </div>
-          <div className="header__actions">
-            <button
-              className="icon-btn"
-              onClick={() => setShowSettings(true)}
-              aria-label="Paramètres"
-              title="Paramètres"
-            >
-              ⚙️
-            </button>
-          </div>
-        </header>
-      )}
-
-      {/* Statistiques groupes */}
-      {phase !== 'loading' && phase !== 'error' && (
-        <GroupStats counts={groupCounts} total={questions.length} />
-      )}
-
-      {/* Countdown prochain reset */}
-      {phase !== 'loading' && phase !== 'error' && (
-        <Countdown progress={progress} />
-      )}
-
-      {/* Contenu principal */}
-      {phase === 'loading' && (
-        <div className="center-screen">
-          <div className="spinner" />
-          <p style={{ color: 'var(--text-sub)' }}>Chargement des questions…</p>
+      <header className="header">
+        <div>
+          <div className="header__title">Quiz Révision</div>
+          <div className="header__subtitle">{questions.length} questions</div>
         </div>
-      )}
-
-      {phase === 'error' && (
-        <div className="center-screen">
-          <p className="error-title">Erreur de chargement</p>
-          <p className="error-msg">{errorMsg}</p>
-          <p className="error-msg">
-            Vérifiez que le fichier <code>questions.csv</code> est bien présent dans le dossier{' '}
-            <code>public/</code>.
-          </p>
+        <div className="header__actions">
+          <button
+            className="icon-btn"
+            onClick={() => setShowSettings(true)}
+            aria-label="Paramètres"
+            title="Paramètres"
+          >
+            ⚙️
+          </button>
         </div>
-      )}
+      </header>
+
+      <GroupStats counts={groupCounts} total={questions.length} />
+      <Countdown progress={progress} />
 
       {phase === 'quiz' && currentQuestion && (
         <QuizCard
@@ -222,7 +179,6 @@ export function App() {
         <VictoryScreen total={questions.length} onReset={handleReset} />
       )}
 
-      {/* Modal paramètres */}
       {showSettings && (
         <SettingsModal
           progress={progress}
