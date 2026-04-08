@@ -17,9 +17,12 @@ from pathlib import Path
 from tqdm import tqdm
 from openai import OpenAI, RateLimitError, APIError
 
+# Racine du projet (scripts/ -> parent = racine)
+ROOT = Path(__file__).parent.parent
+
 # ── Chargement de la configuration ───────────────────────────────────────────
 
-def load_config(path: str = "config.yaml") -> dict:
+def load_config(path: Path | str = ROOT / "config.yaml") -> dict:
     with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
@@ -206,27 +209,27 @@ def add_explanations(df: pd.DataFrame, client: OpenAI, cfg: dict) -> pd.DataFram
 
 
 def main():
-    config_path = "config.yaml"
-    if not Path(config_path).exists():
+    config_path = ROOT / "config.yaml"
+    if not config_path.exists():
         print(f"Fichier de configuration introuvable : {config_path}")
         sys.exit(1)
 
     cfg = load_config(config_path)
-    api_key    = cfg["api"]["api_key"]
-    input_csv  = cfg["preprocessing"]["input_csv"]
-    output_csv = cfg["preprocessing"]["output_csv"]
+    api_key      = cfg["api"]["api_key"]
+    input_csv    = ROOT / cfg["preprocessing"]["input_csv"]
+    output_csv   = ROOT / cfg["preprocessing"]["output_csv"]
     answer_field = cfg["preprocessing"].get("answer_field", "answer_ET")
 
     if api_key == "YOUR_API_KEY_HERE":
         print("Erreur : renseignez votre clé OpenAI dans config.yaml (champ api.api_key)")
         sys.exit(1)
 
-    if not Path(input_csv).exists():
+    if not input_csv.exists():
         print(f"Fichier source introuvable : {input_csv}")
         sys.exit(1)
 
     print(f"Chargement de {input_csv}...")
-    raw = pd.read_csv(input_csv, encoding="utf-8-sig")
+    raw = pd.read_csv(str(input_csv), encoding="utf-8-sig")
     print(f"  {len(raw)} lignes chargées.")
 
     print("Transformation du format...")
@@ -236,7 +239,8 @@ def main():
     client = OpenAI(api_key=api_key)
     df = add_explanations(df, client, cfg)
 
-    df.to_csv(output_csv, index=False, encoding="utf-8-sig")
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(str(output_csv), index=False, encoding="utf-8-sig")
     print(f"\nFichier sauvegardé : {output_csv}  ({len(df)} lignes)")
 
     # Aperçu

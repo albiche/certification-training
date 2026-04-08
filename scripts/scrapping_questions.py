@@ -3,11 +3,16 @@ import time
 import json
 import re
 import random
+from pathlib import Path
 import pandas as pd
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+
+# Racine du projet (scripts/ -> parent = racine)
+ROOT = Path(__file__).parent.parent
+DATA_RAW = ROOT / "data" / "raw"
 
 try:
     from selenium_stealth import stealth
@@ -25,7 +30,7 @@ MAX_RETRIES            = 3
 MAX_CONSECUTIVE_MISSES = 5
 RETRY_WAIT             = (15, 30)   # plus long après un blocage
 PAGE_WAIT              = (6, 12)    # pause entre pages
-CHROME_PROFILE_DIR     = os.path.abspath("./chrome_profile")  # profil persistant
+CHROME_PROFILE_DIR     = str(ROOT / "chrome_profile")  # profil persistant
 # ─────────────────────────────────────────────────────────────────────────────
 
 WINDOW_SIZES = [(1366, 768), (1440, 900), (1536, 864), (1920, 1080)]
@@ -215,12 +220,13 @@ def save_outputs(df: pd.DataFrame, output_stem: str = "questions_all"):
 
 
 def main():
+    DATA_RAW.mkdir(parents=True, exist_ok=True)
     driver = build_driver()
     all_dfs = []
 
-    existing_csv = f"questions_exam{EXAM_ID}_all.csv"
-    if START_PAGE > 1 and os.path.exists(existing_csv):
-        existing_df = pd.read_csv(existing_csv, encoding="utf-8-sig")
+    existing_csv = DATA_RAW / f"questions_exam{EXAM_ID}_all.csv"
+    if START_PAGE > 1 and existing_csv.exists():
+        existing_df = pd.read_csv(str(existing_csv), encoding="utf-8-sig")
         all_dfs.append(existing_df)
         print(f"Reprise page {START_PAGE} — {len(existing_df)} questions déjà chargées.")
     else:
@@ -282,7 +288,7 @@ def main():
     pd.set_option("display.max_colwidth", 120)
     print(combined[["question_id", "question_text", "answer", "answer_ET", "nb_choices", "nb_comments", "page"]])
 
-    save_outputs(combined, output_stem=f"questions_exam{EXAM_ID}_all")
+    save_outputs(combined, output_stem=str(DATA_RAW / f"questions_exam{EXAM_ID}_all"))
     print(f"\n{len(combined)} questions extraites sur {page - 1} pages visitées.")
 
 
