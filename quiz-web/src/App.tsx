@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Question, AppProgress, Group } from './types';
-import { parseQuestions } from './utils/csvParser';
+import { parseQuestions } from './data/csvParser';
 import { loadProgress, saveProgress, defaultProgress } from './storage/storage';
 import {
   initializeProgress,
