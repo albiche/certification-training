@@ -5,35 +5,49 @@ interface Props {
   total: number;
 }
 
+const GROUP_META: Record<Group, { emoji: string; label: string }> = {
+  1: { emoji: '🔴', label: 'À apprendre' },
+  2: { emoji: '🟠', label: 'En cours' },
+  3: { emoji: '🟡', label: 'Presque' },
+  4: { emoji: '🟢', label: 'Maîtrisé' },
+};
+
 export function GroupStats({ counts, total }: Props) {
   const mastered = counts[4];
   const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
   return (
-    <div>
-      <div className="group-stats">
-        {([1, 2, 3, 4] as Group[]).map(g => (
-          <div key={g} className={`group-card group-card--${g}`}>
-            <div className="group-card__label">Groupe {g}</div>
-            <div className="group-card__count">{counts[g]}</div>
+    <div className="group-stats-wrapper">
+      {/* Frise avec flèches */}
+      <div className="group-frise">
+        {([1, 2, 3, 4] as Group[]).map((g, i) => (
+          <div key={g} className="group-frise__item">
+            <div className={`group-card group-card--${g}`}>
+              <div className="group-card__emoji">{GROUP_META[g].emoji}</div>
+              <div className="group-card__count">{counts[g]}</div>
+              <div className="group-card__label">{GROUP_META[g].label}</div>
+            </div>
+            {i < 3 && (
+              <div className="frise-arrow">
+                <span className="frise-arrow__icon">→</span>
+                <span className="frise-arrow__hint">bonne rép.</span>
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      {/* Barre de progression */}
       {total > 0 && (
-        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ flex: 1, height: 5, background: 'var(--border)', borderRadius: 99, overflow: 'hidden' }}>
+        <div className="group-progress">
+          <div className="group-progress__bar">
             <div
-              style={{
-                height: '100%',
-                width: `${pct}%`,
-                background: 'var(--g4)',
-                borderRadius: 99,
-                transition: 'width 0.4s ease',
-              }}
+              className="group-progress__fill"
+              style={{ width: `${pct}%` }}
             />
           </div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-sub)', flexShrink: 0 }}>
-            {mastered}/{total} maîtrisées
+          <span className="group-progress__label">
+            {mastered}/{total} maîtrisées ({pct} %)
           </span>
         </div>
       )}
