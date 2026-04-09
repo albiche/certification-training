@@ -15,7 +15,7 @@ api:
 # ── Preprocessing ─────────────────────────────────────────────────────────────
 preprocessing:
   input_csv:  data/raw/questions_exam12_all.csv
-  output_csv: data/processed/questions_exam12_ready.csv
+  output_csv: data/processed/questions_exam12_ready_fix.csv
   answer_field: answer_ET             # answer_ET (expert) ou answer (communauté)
   skip_existing_explanations: true    # ne re-génère pas si la colonne existe déjà
   explanation_language: english       # langue des explications : english, french, spanish…

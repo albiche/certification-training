@@ -117,10 +117,10 @@ Après chaque mise à jour des questions :
 
 ```bash
 # App mobile
-cp data/processed/questions_exam12_ready.csv quiz-app/assets/questions_exam12_ready.csv
+cp data/processed/questions_exam12_ready_fix.csv quiz-app/assets/questions_exam12_ready_fix.csv
 
 # Site web
-cp data/processed/questions_exam12_ready.csv quiz-web/public/questions.csv
+cp data/processed/questions_exam12_ready_fix.csv quiz-web/public/questions.csv
 ```
 
 ---
@@ -142,7 +142,7 @@ Scanner le QR code avec **Expo Go** (iOS / Android).
 ### Mettre à jour les questions
 
 ```bash
-cp data/processed/questions_exam12_ready.csv quiz-app/assets/questions_exam12_ready.csv
+cp data/processed/questions_exam12_ready_fix.csv quiz-app/assets/questions_exam12_ready_fix.csv
 ```
 
 Relancer `npx expo start`.
@@ -166,7 +166,7 @@ Ouvrir [http://localhost:5173](http://localhost:5173)
 ### Mettre à jour les questions
 
 ```bash
-cp data/processed/questions_exam12_ready.csv quiz-web/public/questions.csv
+cp data/processed/questions_exam12_ready_fix.csv quiz-web/public/questions.csv
 ```
 
 ### Build et déploiement GitHub Pages
@@ -236,7 +236,7 @@ python scripts/scrapping_questions.py
 python scripts/preprocess.py
 
 # Mettre à jour les apps
-cp data/processed/questions_exam12_ready.csv quiz-web/public/questions.csv
+cp data/processed/questions_exam12_ready_fix.csv quiz-web/public/questions.csv
 
 # Pousser et déployer
 git add .

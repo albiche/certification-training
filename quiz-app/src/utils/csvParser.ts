@@ -9,7 +9,7 @@ import { Question, Choice } from '../types';
  */
 export async function loadQuestionsFromCSV(): Promise<Question[]> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const moduleId: number = require('../../assets/questions_exam12_ready.csv');
+  const moduleId: number = require('../../assets/questions_exam12_ready_fix.csv');
   const asset = Asset.fromModule(moduleId);
   await asset.downloadAsync();
 

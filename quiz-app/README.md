@@ -30,7 +30,7 @@ L'app se charge en quelques secondes sur votre téléphone.
 
 ## Mettre à jour vos questions
 
-Le fichier CSV est dans `assets/questions_exam12_ready.csv`.
+Le fichier CSV est dans `assets/questions_exam12_ready_fix.csv`.
 
 | Colonne | Description |
 |---|---|
@@ -68,7 +68,7 @@ Groupe 4 (vert)   → 0%  (question maîtrisée, plus posée)
 ```
 quiz-app/
 ├── assets/
-│   └── questions_exam12_ready.csv   ← votre CSV ici
+│   └── questions_exam12_ready_fix.csv   ← votre CSV ici
 ├── src/
 │   ├── components/    ← GroupStats, QuestionCard, AnswerFeedback, VictoryScreen
 │   ├── logic/         ← progression.ts, questionSelector.ts
