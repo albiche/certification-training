@@ -17,6 +17,16 @@ export interface Question {
 
 export type Group = 1 | 2 | 3 | 4;
 
+export interface AISettings {
+  apiKey: string;
+  model: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export interface QuestionProgress {
   group: Group;
 }

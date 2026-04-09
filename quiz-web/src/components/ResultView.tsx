@@ -5,9 +5,10 @@ interface Props {
   selected: string[];
   correct: boolean;
   onNext: () => void;
+  onAIChat?: () => void;
 }
 
-export function ResultView({ question, selected, correct, onNext }: Props) {
+export function ResultView({ question, selected, correct, onNext, onAIChat }: Props) {
   const correctSet = new Set(question.correct_answers);
   const selectedSet = new Set(selected);
 
@@ -68,6 +69,11 @@ export function ResultView({ question, selected, correct, onNext }: Props) {
         </div>
       )}
 
+      {onAIChat && (
+        <button className="btn btn--ghost" onClick={onAIChat}>
+          🤖 Demander à l'IA
+        </button>
+      )}
       <button className="btn btn--success" onClick={onNext}>
         Question suivante
       </button>

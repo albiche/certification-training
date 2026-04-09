@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Question, Group } from './types';
+import { Question, Group, AISettings } from './types';
 import { useQuizData } from './hooks/useQuizData';
 import { promoteQuestion, getGroupCounts, isVictory, resetGroups } from './logic/progression';
 import { selectNextQuestion } from './logic/selection';
+import { loadAISettings, saveAISettings } from './storage/aiStorage';
 import { GroupStats } from './components/GroupStats';
 import { QuizCard } from './components/QuizCard';
 import { ResultView } from './components/ResultView';
@@ -10,6 +11,7 @@ import { VictoryScreen } from './components/VictoryScreen';
 import { SettingsModal } from './components/SettingsModal';
 import { Countdown } from './components/Countdown';
 import { RulesModal } from './components/RulesModal';
+import { AIChat } from './components/AIChat';
 
 type QuizPhase = 'quiz' | 'result' | 'victory';
 
@@ -23,21 +25,16 @@ export function App() {
   const [lastId, setLastId] = useState<string | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [aiSettings, setAISettings] = useState<AISettings>(() => loadAISettings());
 
   // Démarre le quiz dès que les données sont prêtes
   useEffect(() => {
     if (status !== 'ready') return;
-    if (isVictory(questions, progress)) {
-      setPhase('victory');
-      return;
-    }
+    if (isVictory(questions, progress)) { setPhase('victory'); return; }
     const next = selectNextQuestion(questions, progress);
-    if (next) {
-      setCurrentQuestion(next);
-      setPhase('quiz');
-    } else {
-      setPhase('victory');
-    }
+    if (next) { setCurrentQuestion(next); setPhase('quiz'); }
+    else setPhase('victory');
   }, [status]);
 
   function handleToggle(label: string) {
@@ -53,19 +50,11 @@ export function App() {
 
   function handleValidate() {
     if (!currentQuestion || selected.length === 0) return;
-
     const correct =
       selected.length === currentQuestion.correct_answers.length &&
       selected.every(s => currentQuestion.correct_answers.includes(s));
-
-    let newProgress = {
-      ...progress,
-      answeredSinceLastCheck: progress.answeredSinceLastCheck + 1,
-    };
-    if (correct) {
-      newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
-    }
-
+    let newProgress = { ...progress, answeredSinceLastCheck: progress.answeredSinceLastCheck + 1 };
+    if (correct) newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
     updateProgress(newProgress);
     setLastCorrect(correct);
     setLastId(currentQuestion.question_id);
@@ -73,15 +62,9 @@ export function App() {
   }
 
   function handleNext() {
-    if (isVictory(questions, progress)) {
-      setPhase('victory');
-      return;
-    }
+    if (isVictory(questions, progress)) { setPhase('victory'); return; }
     const next = selectNextQuestion(questions, progress, lastId);
-    if (!next) {
-      setPhase('victory');
-      return;
-    }
+    if (!next) { setPhase('victory'); return; }
     setCurrentQuestion(next);
     setSelected([]);
     setPhase('quiz');
@@ -92,16 +75,17 @@ export function App() {
     updateProgress(reset);
     setShowSettings(false);
     const next = selectNextQuestion(questions, reset);
-    if (next) {
-      setCurrentQuestion(next);
-      setSelected([]);
-      setPhase('quiz');
-    }
+    if (next) { setCurrentQuestion(next); setSelected([]); setPhase('quiz'); }
   }
 
   function handleSaveSettings(regressionDays: number) {
     updateProgress({ ...progress, regressionDays });
     setShowSettings(false);
+  }
+
+  function handleSaveAI(settings: AISettings) {
+    saveAISettings(settings);
+    setAISettings(settings);
   }
 
   // ── Loading / Error ────────────────────────────────────────────────────────
@@ -135,6 +119,7 @@ export function App() {
   const currentGroup: Group = currentQuestion
     ? (progress.progress[currentQuestion.question_id]?.group ?? 1)
     : 1;
+  const hasAI = !!aiSettings.apiKey;
 
   return (
     <div className="app-container">
@@ -144,20 +129,10 @@ export function App() {
           <div className="header__subtitle">{questions.length} questions</div>
         </div>
         <div className="header__actions">
-          <button
-            className="icon-btn icon-btn--label"
-            onClick={() => setShowRules(true)}
-            aria-label="Règles"
-            title="Règles du jeu"
-          >
+          <button className="icon-btn icon-btn--label" onClick={() => setShowRules(true)} title="Règles">
             RÈGLE
           </button>
-          <button
-            className="icon-btn"
-            onClick={() => setShowSettings(true)}
-            aria-label="Paramètres"
-            title="Paramètres"
-          >
+          <button className="icon-btn" onClick={() => setShowSettings(true)} title="Paramètres">
             ⚙️
           </button>
         </div>
@@ -182,6 +157,7 @@ export function App() {
           selected={selected}
           correct={lastCorrect}
           onNext={handleNext}
+          onAIChat={hasAI ? () => setShowAIChat(true) : undefined}
         />
       )}
 
@@ -190,19 +166,28 @@ export function App() {
       )}
 
       {showRules && (
-        <RulesModal
-          regressionDays={progress.regressionDays}
-          onClose={() => setShowRules(false)}
-        />
+        <RulesModal regressionDays={progress.regressionDays} onClose={() => setShowRules(false)} />
       )}
 
       {showSettings && (
         <SettingsModal
           progress={progress}
           questions={questions}
+          aiSettings={aiSettings}
           onSave={handleSaveSettings}
+          onSaveAI={handleSaveAI}
           onReset={handleReset}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {showAIChat && currentQuestion && (
+        <AIChat
+          question={currentQuestion}
+          selected={selected}
+          correct={lastCorrect}
+          aiSettings={aiSettings}
+          onClose={() => setShowAIChat(false)}
         />
       )}
     </div>
