@@ -32,17 +32,16 @@ CHOICE_LETTERS = list("ABCDEF")
 
 def parse_choices(raw: str) -> dict[str, str]:
     """
-    Transforme 'A. texte\nB. texte\n...' en {'A': 'texte', 'B': 'texte', ...}
+    Extrait les choix depuis un bloc texte, y compris les textes multilignes.
+    Capture tout le contenu entre 'A.' et 'B.', entre 'B.' et 'C.', etc.
+    Fonctionne que les choix soient séparés par des sauts de ligne ou non.
     """
     if pd.isna(raw):
         return {}
-    result = {}
-    for line in str(raw).split("\n"):
-        line = line.strip()
-        m = re.match(r"^([A-F])\.\s*(.+)$", line)
-        if m:
-            result[m.group(1)] = m.group(2).strip()
-    return result
+    text = str(raw).strip()
+    # Capture de "X." jusqu'au prochain "Y." (word boundary) ou fin de chaîne
+    matches = re.findall(r'\b([A-F])\.\s+(.*?)(?=\s*\b[A-F]\.\s+|\Z)', text, re.DOTALL)
+    return {letter: content.strip() for letter, content in matches if content.strip()}
 
 # ── Normalisation des réponses ────────────────────────────────────────────────
 
@@ -63,7 +62,7 @@ def normalize_answer(raw) -> tuple[str | None, str]:
 
 # ── Appel API pour l'explication ──────────────────────────────────────────────
 
-def build_prompt(question_text: str, choices: dict, answer_normalized: str, topic: str) -> str:
+def build_prompt(question_text: str, choices: dict, answer_normalized: str, topic: str, language: str = "english") -> str:
     choices_block = "\n".join(
         f"{k}. {v}" for k, v in sorted(choices.items())
     )
@@ -76,8 +75,9 @@ def build_prompt(question_text: str, choices: dict, answer_normalized: str, topi
         f"Question: {question_text}\n\n"
         f"Choices:\n{choices_block}\n\n"
         f"Correct answer: {answer_texts}\n\n"
-        "Give a concise but precise explanation (3 to 5 sentences) of why this is the "
-        "correct answer. Be factual, educational, and directly reference the answer choices."
+        f"Give a concise but precise explanation (3 to 5 sentences) of why this is the "
+        f"correct answer. Be factual, educational, and directly reference the answer choices. "
+        f"Write the explanation in {language}."
     )
 
 
@@ -175,6 +175,7 @@ def add_explanations(df: pd.DataFrame, client: OpenAI, cfg: dict) -> pd.DataFram
     temperature = cfg["api"].get("temperature", 0.3)
     rpm         = cfg["api"].get("requests_per_minute", 20)
     skip        = cfg["preprocessing"].get("skip_existing_explanations", True)
+    language    = cfg["preprocessing"].get("explanation_language", "english")
 
     if "explanation" not in df.columns:
         df["explanation"] = None
@@ -199,6 +200,7 @@ def add_explanations(df: pd.DataFrame, client: OpenAI, cfg: dict) -> pd.DataFram
             choices=choices,
             answer_normalized=str(row.get("answer", "")),
             topic=str(row.get("topic", "")),
+            language=language,
         )
         explanation = fetch_explanation_with_retry(
             client, model, prompt, max_tokens, temperature, rpm
