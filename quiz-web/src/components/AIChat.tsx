@@ -4,17 +4,36 @@ import { chatCompletion } from '../storage/aiStorage';
 
 interface Props {
   question: Question;
-  selected: string[];
-  correct: boolean;
+  mode: 'help' | 'explain';
+  selected?: string[];
+  correct?: boolean;
   aiSettings: AISettings;
   onClose: () => void;
 }
 
-function buildSystemPrompt(question: Question, selected: string[], correct: boolean): string {
+function buildSystemPrompt(question: Question, mode: 'help' | 'explain', selected?: string[], correct?: boolean): string {
   const choicesBlock = question.choices
     .map(c => `${c.label}. ${c.text}`)
     .join('\n');
-  const selectedStr = selected.join(', ') || '(aucune)';
+
+  if (mode === 'help') {
+    return `Tu es un professeur Socratique spécialisé en préparation aux certifications cloud et data.
+
+L'utilisateur est en train de répondre à la question suivante et a besoin d'aide pour réfléchir :
+
+Question : ${question.question_text}
+
+Choix proposés :
+${choicesBlock}
+
+RÈGLE ABSOLUE : Tu n'as PAS le droit de révéler, mentionner, ni même suggérer quelle est la bonne réponse ou quelle lettre est correcte. Si l'utilisateur te demande directement la réponse, refuse poliment et redirige-le vers la réflexion.
+
+Ton rôle : aider l'utilisateur à RÉFLÉCHIR par lui-même. Utilise des analogies, des exemples concrets, pose des questions de retour, explique les concepts sous-jacents — mais sans jamais trahir la réponse correcte.
+
+Sois encourageant, pédagogique et concis. Réponds en français.`;
+  }
+
+  const selectedStr = (selected ?? []).join(', ') || '(aucune)';
   const correctStr = question.correct_answers.join(', ');
 
   return `Tu es un assistant pédagogique spécialisé en préparation aux certifications.
@@ -33,7 +52,7 @@ ${question.explanation ? `\nExplication : ${question.explanation}` : ''}
 Aide l'utilisateur à comprendre ce concept. Sois clair, pédagogique et concis. Réponds en français.`;
 }
 
-export function AIChat({ question, selected, correct, aiSettings, onClose }: Props) {
+export function AIChat({ question, mode, selected, correct, aiSettings, onClose }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,7 +80,7 @@ export function AIChat({ question, selected, correct, aiSettings, onClose }: Pro
     setLoading(true);
 
     try {
-      const systemPrompt = buildSystemPrompt(question, selected, correct);
+      const systemPrompt = buildSystemPrompt(question, mode, selected, correct);
       const fullMessages = [
         { role: 'system', content: systemPrompt },
         ...newMessages,
@@ -91,15 +110,21 @@ export function AIChat({ question, selected, correct, aiSettings, onClose }: Pro
       <div className="modal ai-chat-modal">
         {/* Header */}
         <div className="modal__header">
-          <span className="modal__title">🤖 Assistant IA</span>
+          <span className="modal__title">
+            {mode === 'help' ? '🤖 Aide (sans réponse)' : '🤖 Assistant IA'}
+          </span>
           <button className="icon-btn" onClick={onClose} aria-label="Fermer">✕</button>
         </div>
 
         {/* Contexte question */}
         <div className="ai-context">
-          <span className={`ai-context__badge ${correct ? 'ai-context__badge--correct' : 'ai-context__badge--wrong'}`}>
-            {correct ? '✓ Correcte' : '✗ Incorrecte'}
-          </span>
+          {mode === 'explain' ? (
+            <span className={`ai-context__badge ${correct ? 'ai-context__badge--correct' : 'ai-context__badge--wrong'}`}>
+              {correct ? '✓ Correcte' : '✗ Incorrecte'}
+            </span>
+          ) : (
+            <span className="ai-context__badge ai-context__badge--help">En cours</span>
+          )}
           <span className="ai-context__text">{previewText}</span>
         </div>
 

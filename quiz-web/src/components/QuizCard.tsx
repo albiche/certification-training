@@ -6,9 +6,10 @@ interface Props {
   selected: string[];
   onToggle: (label: string) => void;
   onValidate: () => void;
+  onAIChat?: () => void;
 }
 
-export function QuizCard({ question, currentGroup, selected, onToggle, onValidate }: Props) {
+export function QuizCard({ question, currentGroup, selected, onToggle, onValidate, onAIChat }: Props) {
   const isMultiple = question.question_type === 'multiple';
   const canValidate = selected.length > 0;
 
@@ -44,13 +45,20 @@ export function QuizCard({ question, currentGroup, selected, onToggle, onValidat
         </ul>
       )}
 
-      <button
-        className="btn btn--primary"
-        onClick={onValidate}
-        disabled={!canValidate}
-      >
-        Valider
-      </button>
+      <div className="quiz-card__actions">
+        <button
+          className="btn btn--primary"
+          onClick={onValidate}
+          disabled={!canValidate}
+        >
+          Valider
+        </button>
+        {onAIChat && (
+          <button className="btn btn--ghost" onClick={onAIChat} title="Demander de l'aide à l'IA (sans révéler la réponse)">
+            🤖 Aide
+          </button>
+        )}
+      </div>
     </div>
   );
 }

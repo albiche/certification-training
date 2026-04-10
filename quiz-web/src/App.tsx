@@ -26,6 +26,7 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [aiChatMode, setAIChatMode] = useState<'help' | 'explain'>('explain');
   const [aiSettings, setAISettings] = useState<AISettings>(() => loadAISettings());
 
   // Démarre le quiz dès que les données sont prêtes
@@ -148,6 +149,7 @@ export function App() {
           selected={selected}
           onToggle={handleToggle}
           onValidate={handleValidate}
+          onAIChat={hasAI ? () => { setAIChatMode('help'); setShowAIChat(true); } : undefined}
         />
       )}
 
@@ -157,7 +159,7 @@ export function App() {
           selected={selected}
           correct={lastCorrect}
           onNext={handleNext}
-          onAIChat={hasAI ? () => setShowAIChat(true) : undefined}
+          onAIChat={hasAI ? () => { setAIChatMode('explain'); setShowAIChat(true); } : undefined}
         />
       )}
 
@@ -184,8 +186,9 @@ export function App() {
       {showAIChat && currentQuestion && (
         <AIChat
           question={currentQuestion}
-          selected={selected}
-          correct={lastCorrect}
+          mode={aiChatMode}
+          selected={aiChatMode === 'explain' ? selected : undefined}
+          correct={aiChatMode === 'explain' ? lastCorrect : undefined}
           aiSettings={aiSettings}
           onClose={() => setShowAIChat(false)}
         />

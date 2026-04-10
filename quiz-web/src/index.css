@@ -249,6 +249,16 @@ body {
   color: var(--text);
 }
 
+.quiz-card__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.quiz-card__actions .btn--ghost {
+  font-size: 0.85rem;
+  padding: 8px 14px;
+}
+
 /* ========== CHOICES ========== */
 .choices-list {
   display: flex;
@@ -867,6 +877,7 @@ input[type="range"] {
 }
 .ai-context__badge--correct { background: var(--success-bg); color: var(--success); }
 .ai-context__badge--wrong   { background: var(--error-bg);   color: var(--error); }
+.ai-context__badge--help    { background: #e8f0fe; color: #3b5bdb; }
 .ai-context__text {
   font-size: 0.8rem;
   color: var(--text-sub);
