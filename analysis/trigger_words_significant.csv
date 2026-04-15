@@ -1,0 +1,26 @@
+word,direction,log_odds,count_correct,count_wrong,pct_correct,pct_wrong,chi2,pval
+format-preserving,BONNE reponse,3.011,3,0,0.09,0.0,8.698,0.0032
+drain,BONNE reponse,3.011,3,0,0.09,0.0,8.698,0.0032
+rdb,BONNE reponse,3.011,3,0,0.09,0.0,8.698,0.0032
+most,BONNE reponse,2.164,4,1,0.12,0.01,7.748,0.0054
+max,BONNE reponse,1.912,3,1,0.09,0.01,5.11,0.0238
+turbo,BONNE reponse,1.912,3,1,0.09,0.01,5.11,0.0238
+control,BONNE reponse,1.912,3,1,0.09,0.01,5.11,0.0238
+direct,BONNE reponse,1.912,3,1,0.09,0.01,5.11,0.0238
+introduce,BONNE reponse,1.912,3,1,0.09,0.01,5.11,0.0238
+range,BONNE reponse,1.854,5,2,0.15,0.02,7.697,0.0055
+hub,BONNE reponse,1.854,5,2,0.15,0.02,7.697,0.0055
+retention,BONNE reponse,1.653,4,2,0.12,0.02,5.296,0.0214
+operation,BONNE reponse,1.653,4,2,0.12,0.02,5.296,0.0214
+clustering,BONNE reponse,1.653,4,2,0.12,0.02,5.296,0.0214
+reads,BONNE reponse,1.517,5,3,0.15,0.03,5.7,0.017
+default,BONNE reponse,1.266,5,4,0.15,0.04,4.224,0.0399
+connectivity,BONNE reponse,1.266,5,4,0.15,0.04,4.224,0.0399
+unique,BONNE reponse,1.233,6,5,0.18,0.05,4.821,0.0281
+private,BONNE reponse,1.209,7,6,0.21,0.06,5.426,0.0198
+stream,BONNE reponse,1.066,10,10,0.3,0.1,6.229,0.0126
+after,BONNE reponse,0.975,10,11,0.3,0.11,5.324,0.021
+code,BONNE reponse,0.918,12,14,0.36,0.14,5.744,0.0165
+them,BONNE reponse,0.875,9,11,0.27,0.11,3.933,0.0473
+engine,MAUVAISE reponse,-0.989,6,50,0.18,0.52,6.578,0.0103
+script,MAUVAISE reponse,-2.156,0,12,0.0,0.12,4.143,0.0418
