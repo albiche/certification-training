@@ -33,8 +33,6 @@ export interface QuestionProgress {
 
 export interface AppProgress {
   progress: Record<string, QuestionProgress>; // clé = question_id
-  lastRegressionCheck: string;                // ISO date string
   questionsLoaded: boolean;
-  regressionDays: number;                     // intervalle de régression en jours
-  answeredSinceLastCheck: number;
+  answeredTotal: number;                      // total de réponses données
 }

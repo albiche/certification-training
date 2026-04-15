@@ -3,7 +3,7 @@ import { Question, AppProgress } from '../types';
 import { parseQuestions } from '../data/csvParser';
 import { CSV_FILENAME } from '../data/constants';
 import { loadProgress, saveProgress, defaultProgress } from '../storage/storage';
-import { initializeProgress, applyRegression } from '../logic/progression';
+import { initializeProgress } from '../logic/progression';
 
 type LoadStatus = 'loading' | 'error' | 'ready';
 
@@ -33,11 +33,10 @@ export function useQuizData(): UseQuizDataResult {
 
         const saved = loadProgress();
         const initialized = initializeProgress(parsed, saved);
-        const afterRegression = applyRegression(initialized);
 
-        saveProgress(afterRegression);
+        saveProgress(initialized);
         setQuestions(parsed);
-        setProgress(afterRegression);
+        setProgress(initialized);
         setStatus('ready');
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Question, Group, AISettings } from './types';
 import { useQuizData } from './hooks/useQuizData';
-import { promoteQuestion, getGroupCounts, isVictory, resetGroups } from './logic/progression';
+import { promoteQuestion, demoteQuestion, getGroupCounts, isVictory, resetGroups } from './logic/progression';
 import { selectNextQuestion } from './logic/selection';
 import { loadAISettings, saveAISettings } from './storage/aiStorage';
 import { GroupStats } from './components/GroupStats';
@@ -9,7 +9,6 @@ import { QuizCard } from './components/QuizCard';
 import { ResultView } from './components/ResultView';
 import { VictoryScreen } from './components/VictoryScreen';
 import { SettingsModal } from './components/SettingsModal';
-import { Countdown } from './components/Countdown';
 import { RulesModal } from './components/RulesModal';
 import { AIChat } from './components/AIChat';
 
@@ -54,8 +53,17 @@ export function App() {
     const correct =
       selected.length === currentQuestion.correct_answers.length &&
       selected.every(s => currentQuestion.correct_answers.includes(s));
-    let newProgress = { ...progress, answeredSinceLastCheck: progress.answeredSinceLastCheck + 1 };
-    if (correct) newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
+
+    let newProgress = { ...progress, answeredTotal: progress.answeredTotal + 1 };
+    if (correct) {
+      newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
+    } else {
+      // Mauvaise réponse : régresse si la question est en G2 ou G3
+      const g = progress.progress[currentQuestion.question_id]?.group ?? 1;
+      if (g === 2 || g === 3) {
+        newProgress = demoteQuestion(newProgress, currentQuestion.question_id);
+      }
+    }
     updateProgress(newProgress);
     setLastCorrect(correct);
     setLastId(currentQuestion.question_id);
@@ -77,11 +85,6 @@ export function App() {
     setShowSettings(false);
     const next = selectNextQuestion(questions, reset);
     if (next) { setCurrentQuestion(next); setSelected([]); setPhase('quiz'); }
-  }
-
-  function handleSaveSettings(regressionDays: number) {
-    updateProgress({ ...progress, regressionDays });
-    setShowSettings(false);
   }
 
   function handleSaveAI(settings: AISettings) {
@@ -140,7 +143,6 @@ export function App() {
       </header>
 
       <GroupStats counts={groupCounts} total={questions.length} />
-      <Countdown progress={progress} />
 
       {phase === 'quiz' && currentQuestion && (
         <QuizCard
@@ -168,7 +170,7 @@ export function App() {
       )}
 
       {showRules && (
-        <RulesModal regressionDays={progress.regressionDays} onClose={() => setShowRules(false)} />
+        <RulesModal onClose={() => setShowRules(false)} />
       )}
 
       {showSettings && (
@@ -176,7 +178,6 @@ export function App() {
           progress={progress}
           questions={questions}
           aiSettings={aiSettings}
-          onSave={handleSaveSettings}
           onSaveAI={handleSaveAI}
           onReset={handleReset}
           onClose={() => setShowSettings(false)}

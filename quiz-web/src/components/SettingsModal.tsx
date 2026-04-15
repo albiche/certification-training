@@ -1,22 +1,18 @@
 import { useState } from 'react';
 import { AppProgress, Group, Question, AISettings } from '../types';
-import { getGroupCounts, daysUntilRegression } from '../logic/progression';
+import { getGroupCounts } from '../logic/progression';
 import { AI_MODELS, testConnection } from '../storage/aiStorage';
 
 interface Props {
   progress: AppProgress;
   questions: Question[];
   aiSettings: AISettings;
-  onSave: (regressionDays: number) => void;
   onSaveAI: (settings: AISettings) => void;
   onReset: () => void;
   onClose: () => void;
 }
 
-export function SettingsModal({ progress, questions, aiSettings, onSave, onSaveAI, onReset, onClose }: Props) {
-  // Régression
-  const [days, setDays] = useState(progress.regressionDays);
-
+export function SettingsModal({ progress, questions, aiSettings, onSaveAI, onReset, onClose }: Props) {
   // IA
   const [apiKey, setApiKey] = useState(aiSettings.apiKey);
   const [model, setModel] = useState(aiSettings.model);
@@ -30,10 +26,6 @@ export function SettingsModal({ progress, questions, aiSettings, onSave, onSaveA
   const counts = getGroupCounts(questions, progress);
   const total = questions.length;
   const mastered = counts[4];
-  const daysLeft = daysUntilRegression(progress);
-  const now = new Date();
-  const last = new Date(progress.lastRegressionCheck);
-  const daysSince = Math.floor((now.getTime() - last.getTime()) / 86_400_000);
 
   async function handleTestConnection() {
     if (!apiKey.trim()) return;
@@ -89,41 +81,8 @@ export function SettingsModal({ progress, questions, aiSettings, onSave, onSaveA
           ))}
           <div className="stat-row">
             <span className="stat-row__label">Réponses données</span>
-            <span className="stat-row__value">{progress.answeredSinceLastCheck}</span>
+            <span className="stat-row__value">{progress.answeredTotal}</span>
           </div>
-        </div>
-
-        {/* Régression */}
-        <div className="settings-section">
-          <div className="settings-section__title">Régression automatique</div>
-          <div className="regression-info">
-            <div className="regression-info__countdown">
-              {daysLeft === 0 ? "Aujourd'hui" : `J-${daysLeft}`}
-            </div>
-            <div className="regression-info__label">
-              {daysLeft === 0
-                ? "La prochaine régression s'appliquera au prochain chargement"
-                : `Prochaine régression dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`}
-            </div>
-          </div>
-          <div className="stat-row">
-            <span className="stat-row__label">Dernière régression</span>
-            <span className="stat-row__value">
-              {daysSince === 0 ? "Aujourd'hui" : `Il y a ${daysSince} jour${daysSince > 1 ? 's' : ''}`}
-            </span>
-          </div>
-          <div className="range-row">
-            <label className="range-row__label">
-              <span>Intervalle</span>
-              <span className="range-row__value">{days} jour{days > 1 ? 's' : ''}</span>
-            </label>
-            <input type="range" min={1} max={30} value={days} onChange={e => setDays(Number(e.target.value))} />
-          </div>
-          {days !== progress.regressionDays && (
-            <button className="btn btn--primary" onClick={() => onSave(days)}>
-              Sauvegarder l'intervalle
-            </button>
-          )}
         </div>
 
         {/* Assistant IA */}

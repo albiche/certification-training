@@ -1,9 +1,8 @@
 interface Props {
-  regressionDays: number;
   onClose: () => void;
 }
 
-export function RulesModal({ regressionDays, onClose }: Props) {
+export function RulesModal({ onClose }: Props) {
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal">
@@ -39,26 +38,20 @@ export function RulesModal({ regressionDays, onClose }: Props) {
             <span>La question monte d'un groupe</span>
           </div>
           <div className="rules-row">
-            <span className="rules-pill rules-pill--wrong">✗ Mauvaise réponse</span>
+            <span className="rules-pill rules-pill--wrong">✗ Mauvaise réponse (G1)</span>
             <span className="rules-arrow">→</span>
-            <span>La question reste dans son groupe</span>
+            <span>La question reste en G1</span>
+          </div>
+          <div className="rules-row">
+            <span className="rules-pill rules-pill--wrong">✗ Mauvaise réponse (G2 / G3)</span>
+            <span className="rules-arrow">→</span>
+            <span>La question régresse d'un groupe</span>
           </div>
           <div className="rules-row">
             <span className="rules-pill rules-pill--victory">🏆 Victoire</span>
             <span className="rules-arrow">→</span>
             <span>Toutes les questions sont en groupe 4</span>
           </div>
-        </div>
-
-        <div className="rules-section">
-          <div className="rules-section__title">Régression automatique</div>
-          <p className="rules-text">
-            Toutes les <strong>{regressionDays} jours</strong>, chaque question redescend d'un groupe.
-            Les questions en groupe 1 restent en groupe 1.
-          </p>
-          <p className="rules-text">
-            Cela s'applique même si le site n'a pas été ouvert. L'intervalle est configurable dans ⚙️.
-          </p>
         </div>
       </div>
     </div>

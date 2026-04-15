@@ -1,13 +1,11 @@
 import { AppProgress } from '../types';
-import { STORAGE_KEY, DEFAULT_REGRESSION_DAYS } from '../data/constants';
+import { STORAGE_KEY } from '../data/constants';
 
 export function defaultProgress(): AppProgress {
   return {
     progress: {},
-    lastRegressionCheck: new Date().toISOString(),
     questionsLoaded: false,
-    regressionDays: DEFAULT_REGRESSION_DAYS,
-    answeredSinceLastCheck: 0,
+    answeredTotal: 0,
   };
 }
 
@@ -15,10 +13,16 @@ export function loadProgress(): AppProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultProgress();
-    const parsed = JSON.parse(raw) as AppProgress;
-    if (!parsed.regressionDays) parsed.regressionDays = 5;
-    if (parsed.answeredSinceLastCheck == null) parsed.answeredSinceLastCheck = 0;
-    return parsed;
+    const parsed = JSON.parse(raw) as AppProgress & Record<string, unknown>;
+    // Migration depuis l'ancienne version (avec compteur de régression)
+    if (parsed.answeredTotal == null) {
+      parsed.answeredTotal = (parsed.answeredSinceLastCheck as number | undefined) ?? 0;
+    }
+    return {
+      progress: parsed.progress ?? {},
+      questionsLoaded: parsed.questionsLoaded ?? false,
+      answeredTotal: parsed.answeredTotal,
+    };
   } catch {
     return defaultProgress();
   }

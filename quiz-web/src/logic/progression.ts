@@ -11,40 +11,7 @@ export function initializeProgress(
       progress[q.question_id] = { group: 1 };
     }
   }
-  return {
-    ...existing,
-    progress,
-    questionsLoaded: true,
-    lastRegressionCheck: existing.lastRegressionCheck || new Date().toISOString(),
-  };
-}
-
-/** Applique la régression automatique si des périodes de N jours se sont écoulées. */
-export function applyRegression(state: AppProgress): AppProgress {
-  const regressionDays = state.regressionDays ?? 5;
-  const now = new Date();
-  const last = new Date(state.lastRegressionCheck);
-  const daysPassed = Math.floor((now.getTime() - last.getTime()) / 86_400_000);
-
-  if (daysPassed < regressionDays) return state;
-
-  const periods = Math.floor(daysPassed / regressionDays);
-  const updated = { ...state.progress };
-
-  for (const id in updated) {
-    let g = updated[id].group;
-    for (let i = 0; i < periods; i++) {
-      if (g > 1) g = (g - 1) as Group;
-    }
-    updated[id] = { group: g };
-  }
-
-  return {
-    ...state,
-    progress: updated,
-    lastRegressionCheck: now.toISOString(),
-    answeredSinceLastCheck: 0,
-  };
+  return { ...existing, progress, questionsLoaded: true };
 }
 
 /** Fait monter une question d'un groupe (réponse correcte). Plafond = 4. */
@@ -52,6 +19,20 @@ export function promoteQuestion(state: AppProgress, id: string): AppProgress {
   const current = state.progress[id];
   if (!current) return state;
   const newGroup: Group = current.group < 4 ? ((current.group + 1) as Group) : 4;
+  return {
+    ...state,
+    progress: { ...state.progress, [id]: { group: newGroup } },
+  };
+}
+
+/**
+ * Fait descendre une question d'un groupe (mauvaise réponse sur G2 ou G3).
+ * G1 reste en G1. G4 n'est jamais posée donc ne peut pas régresser.
+ */
+export function demoteQuestion(state: AppProgress, id: string): AppProgress {
+  const current = state.progress[id];
+  if (!current || current.group <= 1) return state;
+  const newGroup: Group = (current.group - 1) as Group;
   return {
     ...state,
     progress: { ...state.progress, [id]: { group: newGroup } },
@@ -77,24 +58,11 @@ export function isVictory(questions: Question[], state: AppProgress): boolean {
   return questions.every(q => state.progress[q.question_id]?.group === 4);
 }
 
-/** Remet tout au groupe 1 et réinitialise le timer. */
+/** Remet tout au groupe 1. */
 export function resetGroups(state: AppProgress): AppProgress {
   const reset: AppProgress['progress'] = {};
   for (const id in state.progress) {
     reset[id] = { group: 1 };
   }
-  return {
-    ...state,
-    progress: reset,
-    lastRegressionCheck: new Date().toISOString(),
-    answeredSinceLastCheck: 0,
-  };
-}
-
-/** Jours restants avant la prochaine régression automatique. */
-export function daysUntilRegression(state: AppProgress): number {
-  const now = new Date();
-  const last = new Date(state.lastRegressionCheck);
-  const daysPassed = Math.floor((now.getTime() - last.getTime()) / 86_400_000);
-  return Math.max(0, (state.regressionDays ?? 5) - daysPassed);
+  return { ...state, progress: reset, answeredTotal: 0 };
 }
