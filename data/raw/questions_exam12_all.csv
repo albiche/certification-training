@@ -1,4 +1,4 @@
-﻿question_id,topic,question_text,choices,nb_choices,answer,answer_ET,answers_community,nb_comments,url,page
+question_id,topic,question_text,choices,nb_choices,answer,answer_ET,answers_community,nb_comments,url,page
 1,1,"Your company built a TensorFlow neutral-network model with a large number of neurons and layers. The model fits well for the training data. However, when tested against new data, it performs poorly. What method can you employ to address this?","A. Threading
 B. Serialization
 C. Dropout Methods
@@ -53,9 +53,7 @@ D. The subscriber code cannot keep up with the messages.
 E. The subscriber code does not acknowledge the messages that it pulls.",5,DE,DE,DE (50%) | CE (40%) | 10%,13,https://www.examtopics.com/discussions/google/view/79780-exam-professional-data-engineer-topic-1-question-109/,3
 13,1,"You are designing a basket abandonment system for an ecommerce company. The system will send a message to a user based on these rules:
 ✑ No interaction by the user on the site for 1 hour
-Has added more than $30 worth of products to the basket
-//IMG//
-
+✑ Has added more than $30 worth of products to the basket
 ✑ Has not completed a transaction
 You use Google Cloud Dataflow to process the data and decide if a message should be sent. How should you design the pipeline?","A. Use a fixed-time window with a duration of 60 minutes.
 B. Use a sliding time window with a duration of 60 minutes.
@@ -315,7 +313,7 @@ D. Create a Cloud SQL instance in a region, and configure automatic backup to a 
 ✑ Support for publish/subscribe semantics on hundreds of topics
 
 Retain per-key ordering -
-//IMG//
+ 
 
 Which system should you choose?","A. Apache Kafka
 B. Cloud Storage
@@ -476,7 +474,7 @@ C. Filter data in Cloud Logging by project, log type, resource, and user, then i
 D. Export Cloud Logging data to Cloud Storage in CSV format. Cleanse the data using Dataprep, filtering by project, resource, and user.",4,A,A,A (76%) | 12% | 12%,21,https://www.examtopics.com/discussions/google/view/79603-exam-professional-data-engineer-topic-1-question-186/,20
 98,1,"The Development and External teams have the project viewer Identity and Access Management (IAM) role in a folder named Visualization. You want the
 Development Team to be able to read data from both Cloud Storage and BigQuery, but the External Team should only be able to read data from BigQuery. What should you do?
-//IMG//","A. Remove Cloud Storage IAM permissions to the External Team on the acme-raw-data project.
+ ","A. Remove Cloud Storage IAM permissions to the External Team on the acme-raw-data project.
 B. Create Virtual Private Cloud (VPC) firewall rules on the acme-raw-data project that deny all ingress traffic from the External Team CIDR range.
 C. Create a VPC Service Controls perimeter containing both projects and BigQuery as a restricted API. Add the External Team users to the perimeter's Access Level.
 D. Create a VPC Service Controls perimeter containing both projects and Cloud Storage as a restricted API. Add the Development Team users to the perimeter's Access Level.",4,D,D,D (76%) | 14% | 10%,19,https://www.examtopics.com/discussions/google/view/79604-exam-professional-data-engineer-topic-1-question-187/,20
@@ -577,7 +575,7 @@ C. Use BigQuery to ingest, prepare, and then analyze the data, and then run quer
 D. Use Cloud Composer to identify longtail and outlier data points, and then output a usable dataset to BigQuery.",4,B,B,B (100%),7,https://www.examtopics.com/discussions/google/view/129853-exam-professional-data-engineer-topic-1-question-206/,24
 121,1,"You are collecting IoT sensor data from millions of devices across the world and storing the data in BigQuery. Your access pattern is based on recent data, filtered by location_id and device_version with the following query:
 
-//IMG//
+ 
 
 
 You want to optimize your queries for cost and performance. How should you structure your data?","A. Partition table data by create_date, location_id, and device_version.
@@ -586,7 +584,7 @@ C. Cluster table data by create_date, location_id, and device_version.
 D. Cluster table data by create_date, partition by location_id, and device_version.",4,B,B,B (100%),7,https://www.examtopics.com/discussions/google/view/129854-exam-professional-data-engineer-topic-1-question-207/,25
 122,1,"A live TV show asks viewers to cast votes using their mobile phones. The event generates a large volume of data during a 3-minute period. You are in charge of the ""Voting infrastructure"" and must ensure that the platform can handle the load and that all votes are processed. You must display partial results while voting is open. After voting closes, you need to count the votes exactly once while optimizing cost. What should you do?
 
-//IMG//","A. Create a Memorystore instance with a high availability (HA) configuration.
+ ","A. Create a Memorystore instance with a high availability (HA) configuration.
 B. Create a Cloud SQL for PostgreSQL database with high availability (HA) configuration and multiple read replicas.
 C. Write votes to a Pub/Sub topic and have Cloud Functions subscribe to it and write votes to BigQuery.
 D. Write votes to a Pub/Sub topic and load into both Bigtable and BigQuery via a Dataflow pipeline. Query Bigtable for real-time results and BigQuery for later analysis. Shut down the Bigtable instance when voting concludes.",4,D,D,D (82%) | C (18%),7,https://www.examtopics.com/discussions/google/view/129855-exam-professional-data-engineer-topic-1-question-208/,25
@@ -617,7 +615,7 @@ C. Determine whether there is a firewall rule set to allow traffic on TCP ports 
 D. Determine whether your Dataflow pipeline is deployed with the external IP address option enabled.",4,B,B,B (100%),6,https://www.examtopics.com/discussions/google/view/129859-exam-professional-data-engineer-topic-1-question-212/,26
 128,1,"Your company's customer_order table in BigQuery stores the order history for 10 million customers, with a table size of 10 PB. You need to create a dashboard for the support team to view the order history. The dashboard has two filters, country_name and username. Both are string data types in the BigQuery table. When a filter is applied, the dashboard fetches the order history from the table and displays the query results. However, the dashboard is slow to show the results when applying the filters to the following query:
 
-//IMG//
+ 
 
 
 How should you redesign the BigQuery table to support faster access?","A. Cluster the table by country and username fields.
@@ -801,10 +799,20 @@ D. 1. Use a dual-region Cloud Storage bucket with turbo replication enabled.
 2. Monitor Dataflow metrics with Cloud Monitoring to determine when an outage occurs.
 3. Seek the subscription back in time by 60 minutes to recover the acknowledged messages.
 4. Start the Dataflow job in a secondary region.",4,D,D,D (84%) | A (16%),10,https://www.examtopics.com/discussions/google/view/130186-exam-professional-data-engineer-topic-1-question-242/,32
-161,1,You are preparing data that your machine learning team will use to train a model using BigQueryML. They want to predict the price per square foot of real estate. The training data has a column for the price and a column for the number of square feet. Another feature column called ‘feature1’ contains null values due to missing data. You want to replace the nulls with zeros to keep more data points. Which query should you use?,"A. 
-B. 
-C. 
-D. ",4,C,C,C (54%) | A (46%),22,https://www.examtopics.com/discussions/google/view/130349-exam-professional-data-engineer-topic-1-question-243/,33
+161,1,You are preparing data that your machine learning team will use to train a model using BigQueryML. They want to predict the price per square foot of real estate. The training data has a column for the price and a column for the number of square feet. Another feature column called ‘feature1’ contains null values due to missing data. You want to replace the nulls with zeros to keep more data points. Which query should you use?,"A. SELECT * EXCEPT(feature1),
+    IFNULL(feature1, 0) AS feature1_cleaned
+FROM training_data;
+B.SELECT * EXCEPT(price, square_feet),
+    price/square_feet AS price_per_sqft
+FROM training_data
+WHERE feature1 IS NOT NULL; 
+C.SELECT * EXCEPT(price, square_feet, feature1),
+    price/square_feet AS price_per_sqft,
+    IFNULL(feature1, 0) AS feature1_cleaned
+FROM training_data; 
+D.SELECT *
+FROM training_data
+WHERE feature1 IS NOT NULL; ",4,C,C,C (54%) | A (46%),22,https://www.examtopics.com/discussions/google/view/130349-exam-professional-data-engineer-topic-1-question-243/,33
 162,1,"Different teams in your organization store customer and performance data in BigQuery. Each team needs to keep full control of their collected data, be able to query data within their projects, and be able to exchange their data with other teams. You need to implement an organization-wide solution, while minimizing operational tasks and costs. What should you do?","A. Ask each team to create authorized views of their data. Grant the biquery.jobUser role to each team.
 B. Create a BigQuery scheduled query to replicate all customer data into team projects.
 C. Ask each team to publish their data in Analytics Hub. Direct the other teams to subscribe to them.
@@ -831,7 +839,7 @@ D. 1. Create one lake for each domain. Inside each lake, create one zone for eac
 3. Have the central data platform team manage all lakes’ data assets.",4,C,C,C (88%) | 13%,6,https://www.examtopics.com/discussions/google/view/130189-exam-professional-data-engineer-topic-1-question-247/,33
 166,1,"dataset.inventory_vm sample records:
 
-//IMG//
+ 
 
 
 You have an inventory of VM data stored in the BigQuery table. You want to prepare the data for regular reporting in the most cost-effective way. You need to exclude VM rows with fewer than 8 vCPU in your report. What should you do?","A. Create a view with a filter to drop rows with fewer than 8 vCPU, and use the UNNEST operator.
@@ -1016,7 +1024,7 @@ C. Give analysts the BigQuery Data Viewer role on the shared dataset. Create a d
 D. Give analysts the BigQuery Data Viewer role on the shared dataset. Create one other dataset and give the analysts the BigQuery Data Editor role on that dataset.",4,C,C,C (100%),7,https://www.examtopics.com/discussions/google/view/130264-exam-professional-data-engineer-topic-1-question-279/,40
 201,1,"Your company is performing data preprocessing for a learning algorithm in Google Cloud Dataflow. Numerous data logs are being are being generated during this step, and the team wants to analyze them. Due to the dynamic nature of the campaign, the data is growing exponentially every hour.
 The data scientists have written the following code to read the data for a new key features in the logs.
-//IMG//
+ 
 
 You want to improve the performance of this data read. What should you do?","A. Specify the TableReference object in the code.
 B. Use .fromQuery operation to read specific fields from the table.
@@ -1303,7 +1311,7 @@ Flowlogistic architecture resides in a single data center:
 
 Business Requirements -
 Build a reliable and reproducible environment with scaled panty of production.
-//IMG//
+ 
 
 ✑ Aggregate data in a centralized Data Lake for analysis
 ✑ Use historical data to perform predictive analytics on future shipments
@@ -1412,7 +1420,7 @@ The company started as a regional trucking company, and then expanded into other
 Solution Concept -
 Flowlogistic wants to implement two concepts using the cloud:
 Use their proprietary technology in a real-time inventory-tracking system that indicates the location of their loads
-//IMG//
+ 
 
 ✑ Perform analytics on all their orders and shipment logs, which contain both structured and unstructured data, to determine how best to deploy resources, which markets to expand info. They also want to use predictive analytics to learn earlier when a shipment will be delayed.
 
@@ -1450,7 +1458,7 @@ Business Requirements -
 
 Technical Requirements -
 Handle both streaming and batch data
-//IMG//
+ 
 
 ✑ Migrate existing Hadoop workloads
 ✑ Ensure architecture is scalable and elastic to meet the changing demands of the company.
@@ -1599,7 +1607,7 @@ Business Requirements -
 ✑ Ensure security of their proprietary data to protect their leading-edge machine learning and analysis.
 ✑ Provide reliable and timely access to data for analysis from distributed research workers
 Maintain isolated environments that support rapid iteration of their machine-learning models without affecting their customers.
-//IMG//
+ 
 
 
 Technical Requirements -
@@ -1650,7 +1658,7 @@ Business Requirements -
 ✑ Scale up their production environment with minimal cost, instantiating resources when and where needed in an unpredictable, distributed telecom user community.
 ✑ Ensure security of their proprietary data to protect their leading-edge machine learning and analysis.
 Provide reliable and timely access to data for analysis from distributed research workers
-//IMG//
+ 
 
 ✑ Maintain isolated environments that support rapid iteration of their machine-learning models without affecting their customers.
 
@@ -1697,7 +1705,7 @@ Business Requirements -
 
 Technical Requirements -
 Ensure secure and efficient transport and storage of telemetry data
-//IMG//
+ 
 
 ✑ Rapidly scale instances to support between 10,000 and 100,000 data providers with multiple flows each.
 ✑ Allow analysis and presentation against data tables tracking up to 2 years of data storing approximately 100m records/day
@@ -1787,7 +1795,7 @@ D. Use a user account with the Project Viewer role on the Cloud Dataproc cluster
 269,1,"You are using Google BigQuery as your data warehouse. Your users report that the following simple query is running very slowly, no matter when they run the query:
 SELECT country, state, city FROM [myproject:mydataset.mytable] GROUP BY country
 You check the query plan for the query and see the following output in the Read section of Stage:1:
-//IMG//
+ 
 
 What is the most likely cause of the delay for this query?","A. Users are running too many concurrent queries in the system
 B. The [myproject:mydataset.mytable] table has too many partitions
@@ -1838,7 +1846,7 @@ B. Set sliding windows to capture all the lagged data.
 C. Use watermarks and timestamps to capture the lagged data.
 D. Ensure every datasource type (stream or batch) has a timestamp, and use the timestamps to define the logic for lagged data.",4,C,C,C (88%) | 6%,21,https://www.examtopics.com/discussions/google/view/17104-exam-professional-data-engineer-topic-1-question-62/,56
 280,1,"You have some data, which is shown in the graphic below. The two dimensions are X and Y, and the shade of each dot represents what class it is. You want to classify this data accurately using a linear algorithm. To do this you need to add a synthetic feature. What should the value of that feature be?
-//IMG//","A. X2+Y2
+ ","A. X2+Y2
 B. X2
 C. Y2
 D. cos(X)",4,A,A,A (80%) | B (20%),30,https://www.examtopics.com/discussions/google/view/16745-exam-professional-data-engineer-topic-1-question-63/,56
@@ -1973,7 +1981,7 @@ Solution Concept -
 MJTelco is running a successful proof-of-concept (PoC) project in its labs. They have two primary needs:
 ✑ Scale and harden their PoC to support significantly more data flows generated when they ramp to more than 50,000 installations.
 Refine their machine-learning cycles to verify and improve the dynamic models they use to control topology definition.
-//IMG//
+ 
 
 MJTelco will also use three separate operating environments `"" development/test, staging, and production `"" to meet the needs of running experiments, deploying new features, and serving production customers.
 
@@ -2003,7 +2011,7 @@ You need to compose visualization for operations teams with the following requir
 ✑ The actionable report should only show suboptimal links.
 ✑ Most suboptimal links should be sorted to the top.
 Suboptimal links can be grouped and filtered by regional geography.
-//IMG//
+ 
 
 ✑ User response time to load the report must be <5 seconds.
 You create a data source to store the last 6 weeks of data, and create visualizations that allow viewers to see multiple date ranges, distinct geographic regions, and unique installation types. You always show the latest data without any changes to your visualizations. You want to avoid creating and updating new visualizations each month. What should you do?","A. Look through the current data and compose a series of charts and tables, one for each possible combination of criteria.
@@ -2149,7 +2157,7 @@ B. Create a numeric column from a feature cross of latitude and longitude.
 C. Create a feature cross of latitude and longitude, bucketize it at the minute level and use L1 regularization during optimization.
 D. Create a feature cross of latitude and longitude, bucketize it at the minute level and use L2 regularization during optimization.",4,C,C,C (59%) | D (24%) | Other,19,https://www.examtopics.com/discussions/google/view/79337-exam-professional-data-engineer-topic-1-question-89/,62
 309,1,"Your company is using WILDCARD tables to query data across multiple tables with similar names. The SQL statement is currently failing with the following error:
-//IMG//
+ 
 
 Which table name will make the SQL statement work correctly?","A. 'bigquery-public-data.noaa_gsod.gsod'
 B. bigquery-public-data.noaa_gsod.gsod*
