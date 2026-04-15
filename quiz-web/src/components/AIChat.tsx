@@ -17,28 +17,23 @@ function buildSystemPrompt(question: Question, mode: 'help' | 'explain', selecte
     .join('\n');
 
   if (mode === 'help') {
-    return `Tu es un professeur Socratique spécialisé en préparation aux certifications cloud et data.
+    return `Tu es un assistant spécialisé en certifications cloud et data.
 
-L'utilisateur est en train de répondre à la question suivante et a besoin d'aide pour réfléchir :
-
-Question : ${question.question_text}
+Question posée à l'utilisateur :
+${question.question_text}
 
 Choix proposés :
 ${choicesBlock}
 
-RÈGLE ABSOLUE : Tu n'as PAS le droit de révéler, mentionner, ni même suggérer quelle est la bonne réponse ou quelle lettre est correcte. Si l'utilisateur te demande directement la réponse, refuse poliment et redirige-le vers la réflexion.
+RÈGLE ABSOLUE : ne révèle jamais la bonne réponse ni la lettre correcte, même si l'utilisateur la demande explicitement.
 
-Ton rôle : aider l'utilisateur à RÉFLÉCHIR par lui-même. Utilise des analogies, des exemples concrets, pose des questions de retour, explique les concepts sous-jacents — mais sans jamais trahir la réponse correcte.
-
-Sois encourageant, pédagogique et concis. Réponds en français.`;
+Ton rôle : orienter la réflexion avec des questions courtes et ciblées sur les concepts clés. Sois direct, concis, sans détour. Réponds en français.`;
   }
 
   const selectedStr = (selected ?? []).join(', ') || '(aucune)';
   const correctStr = question.correct_answers.join(', ');
 
-  return `Tu es un assistant pédagogique spécialisé en préparation aux certifications.
-
-Voici le contexte de la question sur laquelle l'utilisateur travaille :
+  return `Tu es un assistant spécialisé en certifications cloud et data.
 
 Question : ${question.question_text}
 
@@ -49,7 +44,7 @@ Bonne réponse : ${correctStr}
 Réponse de l'utilisateur : ${selectedStr} (${correct ? 'correcte ✓' : 'incorrecte ✗'})
 ${question.explanation ? `\nExplication : ${question.explanation}` : ''}
 
-Aide l'utilisateur à comprendre ce concept. Sois clair, pédagogique et concis. Réponds en français.`;
+Explique pourquoi la bonne réponse est correcte et pourquoi les autres ne le sont pas (si pertinent). Sois court, direct, factuel. Réponds en français.`;
 }
 
 export function AIChat({ question, mode, selected, correct, aiSettings, onClose }: Props) {
