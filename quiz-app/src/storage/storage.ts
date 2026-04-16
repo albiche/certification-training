@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppProgress } from '../types';
+import { ExamType } from '../utils/csvParser';
 
-const STORAGE_KEY = 'quiz_progress_v1';
+const storageKey = (examType: ExamType) => `quiz_progress_v1_${examType}`;
 
 const defaultProgress = (): AppProgress => ({
   progress: {},
@@ -11,9 +12,9 @@ const defaultProgress = (): AppProgress => ({
   answeredSinceLastCheck: 0,
 });
 
-export async function loadProgress(): Promise<AppProgress> {
+export async function loadProgress(examType: ExamType): Promise<AppProgress> {
   try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    const raw = await AsyncStorage.getItem(storageKey(examType));
     if (!raw) return defaultProgress();
     const parsed = JSON.parse(raw) as AppProgress;
     // migration : anciennes saves sans ces champs
@@ -25,10 +26,10 @@ export async function loadProgress(): Promise<AppProgress> {
   }
 }
 
-export async function saveProgress(data: AppProgress): Promise<void> {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export async function saveProgress(examType: ExamType, data: AppProgress): Promise<void> {
+  await AsyncStorage.setItem(storageKey(examType), JSON.stringify(data));
 }
 
-export async function resetProgress(): Promise<void> {
-  await AsyncStorage.removeItem(STORAGE_KEY);
+export async function resetProgress(examType: ExamType): Promise<void> {
+  await AsyncStorage.removeItem(storageKey(examType));
 }

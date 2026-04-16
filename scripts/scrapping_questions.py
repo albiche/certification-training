@@ -36,7 +36,7 @@ _scraping = _load_scraping_config()
 EXAM_ID                = _scraping.get("exam_id", 12)
 START_PAGE             = _scraping.get("start_page", 1)
 BASE_URL               = f"https://www.examprepper.co/exam/{EXAM_ID}/{{page}}"
-SITE_HOME              = "https://www.examprepper.co/"
+SITE_HOME              = "https://www.examprepper.co"
 MAX_RETRIES            = 3
 MAX_CONSECUTIVE_MISSES = 5
 RETRY_WAIT             = (15, 30)   # plus long après un blocage
@@ -59,7 +59,7 @@ def build_driver() -> uc.Chrome:
     options.add_argument("--disable-extensions")
     options.add_argument("--disable-popup-blocking")
 
-    driver = uc.Chrome(options=options, headless=False, version_main=146)
+    driver = uc.Chrome(options=options, headless=False, version_main=147)
 
     if HAS_STEALTH:
         stealth(

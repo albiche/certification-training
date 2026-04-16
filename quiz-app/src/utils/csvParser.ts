@@ -3,13 +3,21 @@ import { Asset } from 'expo-asset';
 import Papa from 'papaparse';
 import { Question, Choice } from '../types';
 
+export type ExamType = 'gcp' | 'databricks';
+
 /**
  * Charge le fichier CSV bundlé dans /assets/ et retourne les questions parsées.
  * Metro doit être configuré pour reconnaître l'extension .csv (voir metro.config.js).
  */
-export async function loadQuestionsFromCSV(): Promise<Question[]> {
+export async function loadQuestionsFromCSV(examType: ExamType): Promise<Question[]> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const moduleId: number = require('../../assets/questions_exam12_ready_fix.csv');
+  let moduleId: number;
+  if (examType === 'databricks') {
+    moduleId = require('../../assets/questions_databricks_associate_data_engineer.csv');
+  } else {
+    moduleId = require('../../assets/questions_gcp_pro_data_engineer.csv');
+  }
+
   const asset = Asset.fromModule(moduleId);
   await asset.downloadAsync();
 

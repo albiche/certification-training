@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { loadQuestionsFromCSV } from './src/utils/csvParser';
+import { loadQuestionsFromCSV, ExamType } from './src/utils/csvParser';
 import { loadProgress, saveProgress, resetProgress } from './src/storage/storage';
 import {
   initializeProgress,
@@ -28,7 +28,20 @@ import VictoryScreen from './src/components/VictoryScreen';
 import SettingsModal from './src/components/SettingsModal';
 import { Question, AppProgress, Group } from './src/types';
 
-type Screen = 'loading' | 'question' | 'feedback' | 'victory' | 'error';
+type Screen = 'select' | 'loading' | 'question' | 'feedback' | 'victory' | 'error';
+
+const EXAM_CONFIG: Record<ExamType, { label: string; subtitle: string; color: string }> = {
+  gcp: {
+    label: 'GCP Pro Data Engineer',
+    subtitle: 'Professional Data Engineer',
+    color: '#4285F4',
+  },
+  databricks: {
+    label: 'Databricks Associate',
+    subtitle: 'Associate Data Engineer',
+    color: '#FF3621',
+  },
+};
 
 function getRegressionCountdown(lastCheck: string, regressionDays: number): string {
   const next = new Date(new Date(lastCheck).getTime() + regressionDays * 86_400_000);
@@ -43,7 +56,8 @@ function getRegressionCountdown(lastCheck: string, regressionDays: number): stri
 }
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('loading');
+  const [screen, setScreen] = useState<Screen>('select');
+  const [examType, setExamType] = useState<ExamType | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [progress, setProgress] = useState<AppProgress | null>(null);
   const [current, setCurrent] = useState<Question | null>(null);
@@ -52,10 +66,6 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('');
   const [countdown, setCountdown] = useState('');
   const [settingsVisible, setSettingsVisible] = useState(false);
-
-  useEffect(() => {
-    boot();
-  }, []);
 
   useEffect(() => {
     if (!progress) return;
@@ -67,16 +77,15 @@ export default function App() {
     return () => clearInterval(id);
   }, [progress?.lastRegressionCheck, progress?.regressionDays]);
 
-  // Initialise ou réinitialise toute l'app
-  const boot = async () => {
+  const boot = async (type: ExamType) => {
     setScreen('loading');
     try {
-      const qs = await loadQuestionsFromCSV();
+      const qs = await loadQuestionsFromCSV(type);
 
-      let prog = await loadProgress();
+      let prog = await loadProgress(type);
       prog = initializeProgress(qs, prog);
-      prog = applyRegression(prog); // régression auto si 5+ jours écoulés
-      await saveProgress(prog);
+      prog = applyRegression(prog);
+      await saveProgress(type, prog);
 
       setQuestions(qs);
       setProgress(prog);
@@ -93,11 +102,23 @@ export default function App() {
     }
   };
 
-  // Appelé quand l'utilisateur valide ses réponses
-  const handleValidate = async (answers: string[]) => {
-    if (!current || !progress) return;
+  const handleSelectExam = (type: ExamType) => {
+    setExamType(type);
+    boot(type);
+  };
 
-    // Comparaison insensible à l'ordre : tri + jointure
+  const handleBackToSelect = () => {
+    setExamType(null);
+    setQuestions([]);
+    setProgress(null);
+    setCurrent(null);
+    setSettingsVisible(false);
+    setScreen('select');
+  };
+
+  const handleValidate = async (answers: string[]) => {
+    if (!current || !progress || !examType) return;
+
     const ok =
       [...answers].sort().join('|') ===
       [...current.correct_answers].sort().join('|');
@@ -105,16 +126,14 @@ export default function App() {
     setSelected(answers);
     setCorrect(ok);
 
-    // Mise à jour de la progression (promotion + compteur si correct)
     let newProg = ok ? promoteQuestion(progress, current.question_id) : progress;
     if (ok) newProg = { ...newProg, answeredSinceLastCheck: (newProg.answeredSinceLastCheck ?? 0) + 1 };
-    await saveProgress(newProg);
+    await saveProgress(examType, newProg);
     setProgress(newProg);
 
     setScreen('feedback');
   };
 
-  // Passe à la question suivante
   const handleNext = () => {
     if (!progress || !questions.length) return;
 
@@ -123,41 +142,60 @@ export default function App() {
       return;
     }
 
-    // Évite de reposer immédiatement la même question
     const next = selectNextQuestion(questions, progress, current?.question_id);
     setCurrent(next);
     setSelected([]);
     setScreen(next ? 'question' : 'victory');
   };
 
-  // Remet toute la progression à zéro (depuis VictoryScreen)
   const handleReset = async () => {
-    await resetProgress();
-    boot();
+    if (!examType) return;
+    await resetProgress(examType);
+    boot(examType);
   };
 
-  // Remet tous les groupes à 1 et reset le timer (depuis Settings)
   const handleResetGroups = async () => {
-    if (!progress) return;
+    if (!progress || !examType) return;
     const newProg = resetGroups(progress);
-    await saveProgress(newProg);
+    await saveProgress(examType, newProg);
     setProgress(newProg);
     setSettingsVisible(false);
     setCurrent(selectNextQuestion(questions, newProg));
     setScreen('question');
   };
 
-  // Sauvegarde le nouvel intervalle de régression
   const handleSaveDays = async (days: number) => {
-    if (!progress) return;
+    if (!progress || !examType) return;
     const newProg = { ...progress, regressionDays: days };
-    await saveProgress(newProg);
+    await saveProgress(examType, newProg);
     setProgress(newProg);
   };
 
   const counts = progress && questions.length
     ? getGroupCounts(questions, progress)
     : ({ 1: 0, 2: 0, 3: 0, 4: 0 } as Record<Group, number>);
+
+  // --- Écran de sélection d'examen ---
+  if (screen === 'select') {
+    return (
+      <SafeAreaView style={s.center}>
+        <StatusBar barStyle="light-content" />
+        <Text style={s.selectTitle}>Choisir un examen</Text>
+        <View style={s.examList}>
+          {(Object.entries(EXAM_CONFIG) as [ExamType, typeof EXAM_CONFIG[ExamType]][]).map(([type, cfg]) => (
+            <TouchableOpacity
+              key={type}
+              style={[s.examCard, { borderColor: cfg.color }]}
+              onPress={() => handleSelectExam(type)}
+            >
+              <Text style={[s.examLabel, { color: cfg.color }]}>{cfg.label}</Text>
+              <Text style={s.examSubtitle}>{cfg.subtitle}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // --- Écran de chargement ---
   if (screen === 'loading') {
@@ -176,8 +214,8 @@ export default function App() {
         <View style={s.errorBox}>
           <Text style={s.errorTitle}>Erreur de chargement</Text>
           <Text style={s.errorMsg}>{errorMsg}</Text>
-          <TouchableOpacity style={s.retryBtn} onPress={boot}>
-            <Text style={s.retryText}>Réessayer</Text>
+          <TouchableOpacity style={s.retryBtn} onPress={handleBackToSelect}>
+            <Text style={s.retryText}>Retour</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -190,9 +228,14 @@ export default function App() {
       <SafeAreaView style={s.root}>
         <StatusBar barStyle="light-content" />
         <VictoryScreen totalQuestions={questions.length} onReset={handleReset} />
+        <TouchableOpacity style={s.backBtn} onPress={handleBackToSelect}>
+          <Text style={s.backBtnText}>← Choisir un autre examen</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
+
+  const examCfg = examType ? EXAM_CONFIG[examType] : null;
 
   // --- Écran principal (question / feedback) ---
   return (
@@ -203,8 +246,12 @@ export default function App() {
         showsVerticalScrollIndicator={false}
       >
         <View style={s.titleRow}>
-          <View style={s.titleSpacer} />
-          <Text style={s.title}>Quiz GCP</Text>
+          <TouchableOpacity style={s.titleSpacer} onPress={handleBackToSelect} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={s.backIcon}>←</Text>
+          </TouchableOpacity>
+          <Text style={[s.title, examCfg ? { color: examCfg.color } : {}]}>
+            Quiz {examCfg?.label ?? ''}
+          </Text>
           <TouchableOpacity style={s.titleSpacer} onPress={() => setSettingsVisible(true)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={s.gearIcon}>⚙️</Text>
           </TouchableOpacity>
@@ -222,7 +269,7 @@ export default function App() {
 
         {screen === 'question' && current && (
           <QuestionCard
-            key={current.question_id} // force le reset de l'état interne à chaque question
+            key={current.question_id}
             question={current}
             onValidate={handleValidate}
           />
@@ -268,6 +315,35 @@ const s = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 48,
   },
+  // Sélection d'examen
+  selectTitle: {
+    color: '#ecf0f1',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 32,
+    letterSpacing: 0.5,
+  },
+  examList: {
+    width: '80%',
+    gap: 16,
+  },
+  examCard: {
+    backgroundColor: '#1a2634',
+    borderRadius: 14,
+    borderWidth: 2,
+    padding: 20,
+    alignItems: 'center',
+  },
+  examLabel: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  examSubtitle: {
+    color: '#7f8c8d',
+    fontSize: 13,
+  },
+  // Quiz
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -284,6 +360,10 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     letterSpacing: 0.5,
+  },
+  backIcon: {
+    color: '#7f8c8d',
+    fontSize: 20,
   },
   gearIcon: {
     fontSize: 20,
@@ -330,5 +410,13 @@ const s = StyleSheet.create({
     marginTop: -8,
     marginBottom: 14,
     opacity: 0.85,
+  },
+  backBtn: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  backBtnText: {
+    color: '#7f8c8d',
+    fontSize: 14,
   },
 });
