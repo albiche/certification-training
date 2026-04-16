@@ -12,15 +12,15 @@ export interface ExamConfig {
 
 export const EXAM_CONFIG: Record<ExamType, ExamConfig> = {
   gcp: {
-    label: 'GCP Pro Data Engineer',
-    subtitle: 'Professional Data Engineer',
+    label: 'GCP Professional Data Engineer',
+    subtitle: 'Google Cloud Certification',
     color: '#4285F4',
     csvFile: 'questions.csv',
     storageKey: 'quiz_web_progress_v1_gcp',
   },
   databricks: {
-    label: 'Databricks Associate',
-    subtitle: 'Associate Data Engineer',
+    label: 'Databricks Associate Data Engineer',
+    subtitle: 'Databricks Certification',
     color: '#FF3621',
     csvFile: 'questions_databricks.csv',
     storageKey: 'quiz_web_progress_v1_databricks',

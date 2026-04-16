@@ -117,10 +117,11 @@ export function App() {
           <div className="select-hero__icon">🎓</div>
           <h1 className="select-hero__title">Certification Training</h1>
           <p className="select-hero__desc">
-            Prépare tes certifications cloud avec la méthode de{' '}
-            <strong>répétition espacée</strong>. Les questions sont réparties en{' '}
-            4 groupes — tu progresses au fil de tes bonnes réponses et régresses
-            sur les erreurs, pour ancrer les notions les plus difficiles.
+            Entraîne-toi avec les <strong>vraies questions des examens officiels</strong>,
+            issues des banques de questions réelles. La méthode de{' '}
+            <strong>répétition espacée</strong> répartit les questions en 4 groupes —
+            tu progresses sur tes bonnes réponses et régresses sur les erreurs,
+            pour ancrer durablement les notions les plus difficiles.
           </p>
         </div>
 
