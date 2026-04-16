@@ -78,7 +78,7 @@ const CHOICE_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
 export function parseQuestions(csv: string): Question[] {
   const records = csvToObjects(csv);
   return records
-    .filter(r => r.question_id && r.question_text)
+    .filter(r => r.question_id && r.question_text && r.choice_A?.trim())
     .map(r => {
       const choices: Choice[] = CHOICE_LABELS
         .map(l => ({ label: l, text: r[`choice_${l}`] ?? '' }))

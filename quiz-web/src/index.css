@@ -996,3 +996,131 @@ input[type="range"] {
   .quiz-card { padding: 16px; }
   .quiz-card__question { font-size: 0.92rem; }
 }
+
+/* ========== SELECT SCREEN ========== */
+.select-screen {
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #0f2744 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px 48px;
+  gap: 40px;
+}
+
+.select-hero {
+  text-align: center;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.select-hero__icon {
+  font-size: 3.2rem;
+  filter: drop-shadow(0 0 24px rgba(99, 179, 237, 0.4));
+}
+
+.select-hero__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: -0.02em;
+}
+
+.select-hero__desc {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  max-width: 440px;
+}
+
+.select-hero__desc strong {
+  color: #e2e8f0;
+}
+
+.select-exams {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.select-exams__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.select-exams__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.exam-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid var(--exam-color, #4285F4);
+  border-radius: 14px;
+  padding: 18px 22px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  box-shadow: 0 0 0 0 var(--exam-color, #4285F4);
+}
+
+.exam-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--exam-color, #4285F4) 40%, transparent);
+}
+
+.exam-card:active {
+  transform: translateY(0);
+}
+
+.exam-card__label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--exam-color, #4285F4);
+}
+
+.exam-card__sub {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.select-ai-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 18px;
+  max-width: 400px;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.select-ai-hint__icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.select-ai-hint strong {
+  color: #94a3b8;
+}

@@ -112,40 +112,42 @@ export function App() {
   // ── Écran de sélection d'examen ───────────────────────────────────────────
   if (phase === 'select' || !examType) {
     return (
-      <div className="app-container">
-        <div className="center-screen">
-          <h1 style={{ color: 'var(--text-main)', marginBottom: '8px', fontSize: '1.4rem' }}>
-            Choisir un examen
-          </h1>
-          <p style={{ color: 'var(--text-sub)', marginBottom: '32px', fontSize: '0.9rem' }}>
-            Votre progression est sauvegardée séparément pour chaque examen.
+      <div className="select-screen">
+        <div className="select-hero">
+          <div className="select-hero__icon">🎓</div>
+          <h1 className="select-hero__title">Certification Training</h1>
+          <p className="select-hero__desc">
+            Prépare tes certifications cloud avec la méthode de{' '}
+            <strong>répétition espacée</strong>. Les questions sont réparties en{' '}
+            4 groupes — tu progresses au fil de tes bonnes réponses et régresses
+            sur les erreurs, pour ancrer les notions les plus difficiles.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '360px' }}>
+        </div>
+
+        <div className="select-exams">
+          <p className="select-exams__label">Choisis un examen</p>
+          <div className="select-exams__list">
             {(Object.entries(EXAM_CONFIG) as [ExamType, typeof EXAM_CONFIG[ExamType]][]).map(([type, cfg]) => (
               <button
                 key={type}
+                className="exam-card"
+                style={{ '--exam-color': cfg.color } as React.CSSProperties}
                 onClick={() => handleSelectExam(type)}
-                style={{
-                  background: 'var(--card-bg)',
-                  border: `2px solid ${cfg.color}`,
-                  borderRadius: '14px',
-                  padding: '20px 24px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'transform 0.1s',
-                }}
-                onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.02)')}
-                onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}
               >
-                <div style={{ color: cfg.color, fontWeight: 700, fontSize: '1.1rem', marginBottom: '4px' }}>
-                  {cfg.label}
-                </div>
-                <div style={{ color: 'var(--text-sub)', fontSize: '0.85rem' }}>
-                  {cfg.subtitle}
-                </div>
+                <span className="exam-card__label">{cfg.label}</span>
+                <span className="exam-card__sub">{cfg.subtitle}</span>
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="select-ai-hint">
+          <span className="select-ai-hint__icon">🤖</span>
+          <span>
+            Un assistant IA peut t'aider à comprendre chaque réponse.{' '}
+            <strong>Ajoute ta clé API OpenAI dans les réglages</strong>{' '}
+            (⚙️) une fois l'examen démarré.
+          </span>
         </div>
       </div>
     );
