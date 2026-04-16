@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Question, Group, AISettings } from './types';
+import { ExamType, EXAM_CONFIG } from './data/constants';
 import { useQuizData } from './hooks/useQuizData';
 import { promoteQuestion, demoteQuestion, getGroupCounts, isVictory, resetGroups } from './logic/progression';
 import { selectNextQuestion } from './logic/selection';
@@ -12,12 +13,14 @@ import { SettingsModal } from './components/SettingsModal';
 import { RulesModal } from './components/RulesModal';
 import { AIChat } from './components/AIChat';
 
-type QuizPhase = 'quiz' | 'result' | 'victory';
+type QuizPhase = 'select' | 'quiz' | 'result' | 'victory';
 
 export function App() {
-  const { status, questions, progress, updateProgress, error } = useQuizData();
+  const [examType, setExamType] = useState<ExamType | null>(null);
+  const [phase, setPhase] = useState<QuizPhase>('select');
 
-  const [phase, setPhase] = useState<QuizPhase>('quiz');
+  const { status, questions, progress, updateProgress, error } = useQuizData(examType ?? 'gcp');
+
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [lastCorrect, setLastCorrect] = useState(false);
@@ -28,14 +31,29 @@ export function App() {
   const [aiChatMode, setAIChatMode] = useState<'help' | 'explain'>('explain');
   const [aiSettings, setAISettings] = useState<AISettings>(() => loadAISettings());
 
-  // Démarre le quiz dès que les données sont prêtes
+  // Démarre le quiz dès que les données sont prêtes et qu'un exam est sélectionné
   useEffect(() => {
-    if (status !== 'ready') return;
+    if (!examType || status !== 'ready') return;
     if (isVictory(questions, progress)) { setPhase('victory'); return; }
     const next = selectNextQuestion(questions, progress);
     if (next) { setCurrentQuestion(next); setPhase('quiz'); }
     else setPhase('victory');
-  }, [status]);
+  }, [status, examType]);
+
+  function handleSelectExam(type: ExamType) {
+    setExamType(type);
+    setCurrentQuestion(null);
+    setSelected([]);
+    // useQuizData rechargera automatiquement via le useEffect sur examType
+  }
+
+  function handleBackToSelect() {
+    setExamType(null);
+    setPhase('select');
+    setCurrentQuestion(null);
+    setSelected([]);
+    setShowSettings(false);
+  }
 
   function handleToggle(label: string) {
     if (!currentQuestion) return;
@@ -58,7 +76,6 @@ export function App() {
     if (correct) {
       newProgress = promoteQuestion(newProgress, currentQuestion.question_id);
     } else {
-      // Mauvaise réponse : régresse si la question est en G2 ou G3
       const g = progress.progress[currentQuestion.question_id]?.group ?? 1;
       if (g === 2 || g === 3) {
         newProgress = demoteQuestion(newProgress, currentQuestion.question_id);
@@ -92,6 +109,48 @@ export function App() {
     setAISettings(settings);
   }
 
+  // ── Écran de sélection d'examen ───────────────────────────────────────────
+  if (phase === 'select' || !examType) {
+    return (
+      <div className="app-container">
+        <div className="center-screen">
+          <h1 style={{ color: 'var(--text-main)', marginBottom: '8px', fontSize: '1.4rem' }}>
+            Choisir un examen
+          </h1>
+          <p style={{ color: 'var(--text-sub)', marginBottom: '32px', fontSize: '0.9rem' }}>
+            Votre progression est sauvegardée séparément pour chaque examen.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '360px' }}>
+            {(Object.entries(EXAM_CONFIG) as [ExamType, typeof EXAM_CONFIG[ExamType]][]).map(([type, cfg]) => (
+              <button
+                key={type}
+                onClick={() => handleSelectExam(type)}
+                style={{
+                  background: 'var(--card-bg)',
+                  border: `2px solid ${cfg.color}`,
+                  borderRadius: '14px',
+                  padding: '20px 24px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'transform 0.1s',
+                }}
+                onMouseOver={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+                onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}
+              >
+                <div style={{ color: cfg.color, fontWeight: 700, fontSize: '1.1rem', marginBottom: '4px' }}>
+                  {cfg.label}
+                </div>
+                <div style={{ color: 'var(--text-sub)', fontSize: '0.85rem' }}>
+                  {cfg.subtitle}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Loading / Error ────────────────────────────────────────────────────────
   if (status === 'loading') {
     return (
@@ -110,9 +169,9 @@ export function App() {
         <div className="center-screen">
           <p className="error-title">Erreur de chargement</p>
           <p className="error-msg">{error}</p>
-          <p className="error-msg">
-            Vérifiez que <code>questions.csv</code> est présent dans <code>public/</code>.
-          </p>
+          <button onClick={handleBackToSelect} style={{ marginTop: '16px', padding: '10px 20px', cursor: 'pointer' }}>
+            ← Retour
+          </button>
         </div>
       </div>
     );
@@ -124,13 +183,24 @@ export function App() {
     ? (progress.progress[currentQuestion.question_id]?.group ?? 1)
     : 1;
   const hasAI = !!aiSettings.apiKey;
+  const examCfg = EXAM_CONFIG[examType];
 
   return (
     <div className="app-container">
       <header className="header">
-        <div>
-          <div className="header__title">Quiz Révision</div>
-          <div className="header__subtitle">{questions.length} questions</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            className="icon-btn"
+            onClick={handleBackToSelect}
+            title="Changer d'examen"
+            style={{ fontSize: '1rem' }}
+          >
+            ←
+          </button>
+          <div>
+            <div className="header__title" style={{ color: examCfg.color }}>{examCfg.label}</div>
+            <div className="header__subtitle">{questions.length} questions</div>
+          </div>
         </div>
         <div className="header__actions">
           <button className="icon-btn icon-btn--label" onClick={() => setShowRules(true)} title="Règles">

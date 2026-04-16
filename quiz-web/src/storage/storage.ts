@@ -1,5 +1,4 @@
 import { AppProgress } from '../types';
-import { STORAGE_KEY } from '../data/constants';
 
 export function defaultProgress(): AppProgress {
   return {
@@ -9,9 +8,9 @@ export function defaultProgress(): AppProgress {
   };
 }
 
-export function loadProgress(): AppProgress {
+export function loadProgress(storageKey: string): AppProgress {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (!raw) return defaultProgress();
     const parsed = JSON.parse(raw) as AppProgress & Record<string, unknown>;
     // Migration depuis l'ancienne version (avec compteur de régression)
@@ -28,10 +27,10 @@ export function loadProgress(): AppProgress {
   }
 }
 
-export function saveProgress(data: AppProgress): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export function saveProgress(storageKey: string, data: AppProgress): void {
+  localStorage.setItem(storageKey, JSON.stringify(data));
 }
 
-export function clearProgress(): void {
-  localStorage.removeItem(STORAGE_KEY);
+export function clearProgress(storageKey: string): void {
+  localStorage.removeItem(storageKey);
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Question, AppProgress } from '../types';
 import { parseQuestions } from '../data/csvParser';
-import { CSV_FILENAME } from '../data/constants';
+import { ExamType, EXAM_CONFIG } from '../data/constants';
 import { loadProgress, saveProgress, defaultProgress } from '../storage/storage';
 import { initializeProgress } from '../logic/progression';
 
@@ -15,26 +15,32 @@ interface UseQuizDataResult {
   error: string;
 }
 
-export function useQuizData(): UseQuizDataResult {
+export function useQuizData(examType: ExamType): UseQuizDataResult {
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [progress, setProgress] = useState<AppProgress>(defaultProgress());
   const [error, setError] = useState('');
 
+  const cfg = EXAM_CONFIG[examType];
+
   useEffect(() => {
+    setStatus('loading');
+    setQuestions([]);
+    setProgress(defaultProgress());
+
     async function load() {
       try {
-        const url = `${import.meta.env.BASE_URL}${CSV_FILENAME}`;
+        const url = `${import.meta.env.BASE_URL}${cfg.csvFile}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`Impossible de charger ${CSV_FILENAME} (HTTP ${res.status})`);
+        if (!res.ok) throw new Error(`Impossible de charger ${cfg.csvFile} (HTTP ${res.status})`);
         const text = await res.text();
         const parsed = parseQuestions(text);
         if (!parsed.length) throw new Error('Aucune question trouvée dans le fichier CSV.');
 
-        const saved = loadProgress();
+        const saved = loadProgress(cfg.storageKey);
         const initialized = initializeProgress(parsed, saved);
 
-        saveProgress(initialized);
+        saveProgress(cfg.storageKey, initialized);
         setQuestions(parsed);
         setProgress(initialized);
         setStatus('ready');
@@ -44,10 +50,10 @@ export function useQuizData(): UseQuizDataResult {
       }
     }
     load();
-  }, []);
+  }, [examType]);
 
   function updateProgress(p: AppProgress) {
-    saveProgress(p);
+    saveProgress(cfg.storageKey, p);
     setProgress(p);
   }
 
