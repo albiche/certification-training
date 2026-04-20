@@ -138,6 +138,72 @@ def fetch_explanation_with_retry(
         time.sleep(wait)
     return None
 
+# ── Filtrage des questions invalides ──────────────────────────────────────────
+
+# Placeholder image généré par le scraper
+_IMG_RE = re.compile(r'//img//', re.IGNORECASE)
+
+# Caractères de contrôle, replacement char Unicode, séparateurs de ligne ésotériques
+_WEIRD_RE = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ufffd\u2028\u2029]')
+
+# Entités HTML non décodées résiduelles
+_HTML_ENTITY_RE = re.compile(r'&[a-zA-Z]{2,8};|&#\d{1,5};')
+
+
+def _check_row(row: pd.Series) -> str | None:
+    """Retourne la raison de rejet, ou None si la question est valide."""
+    choice_a = str(row.get("choice_A") or "").strip()
+    answer   = str(row.get("answer")   or "").strip()
+
+    if not choice_a:
+        return "choice_A vide (pas de choix)"
+    if not answer or answer.lower() == "nan":
+        return "réponse manquante"
+
+    fields = [
+        str(row.get("question_text") or ""),
+        choice_a,
+        str(row.get("choice_B") or ""),
+        str(row.get("choice_C") or ""),
+        str(row.get("choice_D") or ""),
+    ]
+    combined = " ".join(fields)
+
+    if _IMG_RE.search(combined):
+        return "contient //img//"
+    if _WEIRD_RE.search(combined):
+        return "caractères de contrôle"
+    if _HTML_ENTITY_RE.search(combined):
+        return "entités HTML non décodées"
+
+    return None
+
+
+def filter_questions(df: pd.DataFrame) -> pd.DataFrame:
+    reasons: dict[str, int] = {}
+    keep = []
+
+    for _, row in df.iterrows():
+        reason = _check_row(row)
+        if reason is None:
+            keep.append(True)
+        else:
+            keep.append(False)
+            reasons[reason] = reasons.get(reason, 0) + 1
+
+    df_clean = df[keep].reset_index(drop=True)
+    dropped = len(df) - len(df_clean)
+
+    if dropped:
+        print(f"  {dropped} question(s) supprimée(s) :")
+        for r, n in sorted(reasons.items(), key=lambda x: -x[1]):
+            print(f"    · {r} : {n}")
+    else:
+        print("  Aucune question supprimée.")
+
+    return df_clean
+
+
 # ── Pipeline principal ────────────────────────────────────────────────────────
 
 def transform(df: pd.DataFrame, answer_field: str) -> pd.DataFrame:
@@ -237,6 +303,10 @@ def main():
     print("Transformation du format...")
     df = transform(raw, answer_field=answer_field)
     print(f"  {len(df)} questions transformées.")
+
+    print("Filtrage des questions invalides...")
+    df = filter_questions(df)
+    print(f"  {len(df)} questions retenues.")
 
     client = OpenAI(api_key=api_key)
     df = add_explanations(df, client, cfg)
