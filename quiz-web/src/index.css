@@ -1000,7 +1000,7 @@ input[type="range"] {
 /* ========== SELECT SCREEN ========== */
 .select-screen {
   min-height: 100vh;
-  background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #0f2744 100%);
+  background: linear-gradient(160deg, #e8f0fe 0%, #f0f4ff 50%, #e6f4ea 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1020,25 +1020,24 @@ input[type="range"] {
 
 .select-hero__icon {
   font-size: 3.2rem;
-  filter: drop-shadow(0 0 24px rgba(99, 179, 237, 0.4));
 }
 
 .select-hero__title {
   font-size: 2rem;
   font-weight: 800;
-  color: #f1f5f9;
+  color: #1e293b;
   letter-spacing: -0.02em;
 }
 
 .select-hero__desc {
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: #475569;
   line-height: 1.7;
   max-width: 440px;
 }
 
 .select-hero__desc strong {
-  color: #e2e8f0;
+  color: #1e293b;
 }
 
 .select-exams {
@@ -1067,7 +1066,7 @@ input[type="range"] {
 
 .exam-card {
   width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff;
   border: 2px solid var(--exam-color, #4285F4);
   border-radius: 14px;
   padding: 18px 22px;
@@ -1077,13 +1076,13 @@ input[type="range"] {
   flex-direction: column;
   gap: 4px;
   transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
-  box-shadow: 0 0 0 0 var(--exam-color, #4285F4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .exam-card:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
   transform: translateY(-2px);
-  box-shadow: 0 4px 24px -4px color-mix(in srgb, var(--exam-color, #4285F4) 40%, transparent);
+  box-shadow: 0 6px 20px -4px color-mix(in srgb, var(--exam-color, #4285F4) 30%, transparent);
 }
 
 .exam-card:active {
@@ -1105,14 +1104,15 @@ input[type="range"] {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 14px 18px;
   max-width: 400px;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #475569;
   line-height: 1.6;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
 .select-ai-hint__icon {
@@ -1122,5 +1122,5 @@ input[type="range"] {
 }
 
 .select-ai-hint strong {
-  color: #94a3b8;
+  color: #1e293b;
 }
