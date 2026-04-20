@@ -31,6 +31,33 @@ export function App() {
   const [aiChatMode, setAIChatMode] = useState<'help' | 'explain'>('explain');
   const [aiSettings, setAISettings] = useState<AISettings>(() => loadAISettings());
 
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [reqExam, setReqExam] = useState('');
+  const [reqEmail, setReqEmail] = useState('');
+  const [reqStatus, setReqStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
+
+  async function handleRequestSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setReqStatus('sending');
+    try {
+      const res = await fetch('https://formspree.io/f/xdaydwjl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ exam: reqExam, email: reqEmail }),
+      });
+      setReqStatus(res.ok ? 'ok' : 'error');
+    } catch {
+      setReqStatus('error');
+    }
+  }
+
+  function closeRequestForm() {
+    setShowRequestForm(false);
+    setReqExam('');
+    setReqEmail('');
+    setReqStatus('idle');
+  }
+
   // Démarre le quiz dès que les données sont prêtes et qu'un exam est sélectionné
   useEffect(() => {
     if (!examType || status !== 'ready') return;
@@ -150,6 +177,64 @@ export function App() {
             (⚙️) une fois l'examen démarré.
           </span>
         </div>
+
+        <button className="request-exam-btn" onClick={() => setShowRequestForm(true)}>
+          + Demander un nouvel examen
+        </button>
+
+        {showRequestForm && (
+          <div className="modal-overlay" onClick={closeRequestForm}>
+            <div className="modal request-modal" onClick={e => e.stopPropagation()}>
+              <div className="modal__header">
+                <span className="modal__title">Demander un examen</span>
+                <button className="icon-btn" onClick={closeRequestForm}>✕</button>
+              </div>
+
+              {reqStatus === 'ok' ? (
+                <div className="request-success">
+                  <div style={{ fontSize: '2rem' }}>✅</div>
+                  <p>Demande envoyée, merci !</p>
+                  <button className="btn btn--primary" onClick={closeRequestForm}>Fermer</button>
+                </div>
+              ) : (
+                <form onSubmit={handleRequestSubmit} className="request-form">
+                  <div className="request-form__field">
+                    <label className="request-form__label">Nom de l'examen</label>
+                    <input
+                      className="ai-key-input"
+                      type="text"
+                      placeholder="ex: AWS Solutions Architect"
+                      value={reqExam}
+                      onChange={e => setReqExam(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="request-form__field">
+                    <label className="request-form__label">Ton e-mail</label>
+                    <input
+                      className="ai-key-input"
+                      type="email"
+                      placeholder="toi@exemple.com"
+                      value={reqEmail}
+                      onChange={e => setReqEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  {reqStatus === 'error' && (
+                    <p className="ai-test-msg ai-test-msg--error">Erreur d'envoi, réessaie.</p>
+                  )}
+                  <button
+                    className="btn btn--primary"
+                    type="submit"
+                    disabled={reqStatus === 'sending'}
+                  >
+                    {reqStatus === 'sending' ? 'Envoi…' : 'Envoyer la demande'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

@@ -1124,3 +1124,53 @@ input[type="range"] {
 .select-ai-hint strong {
   color: #1e293b;
 }
+
+.request-exam-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.request-exam-btn:hover {
+  color: #334155;
+  background: rgba(0,0,0,0.04);
+}
+
+.request-modal {
+  max-width: 380px;
+}
+
+.request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.request-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.request-form__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.request-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  text-align: center;
+  color: var(--text);
+  font-size: 0.95rem;
+}
